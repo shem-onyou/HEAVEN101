@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: bc317858d293c16489eb9d254e3601d4
+guid: fc5541038c3fb254b9a6af43c271dcb0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1940619323011800417
-    second: Lord4_0
+      213: -7344784485589976414
+    second: Lord Asset6_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -97,6 +97,19 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -113,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Lord4_0
+      name: Lord Asset6_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 128
-        height: 128
+        x: 20
+        y: 29
+        width: 84
+        height: 72
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f926f9fe1098115e0800000000000000
-      internalID: -1940619323011800417
+      spriteID: 2aafb98bc65121a90800000000000000
+      internalID: -7344784485589976414
       vertices: []
       indices: 
       edges: []
@@ -148,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Lord4_0: -1940619323011800417
+      Lord Asset6_0: -7344784485589976414
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

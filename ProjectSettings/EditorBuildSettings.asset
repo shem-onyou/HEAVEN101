@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Acts.unity
     guid: f70ad8c0e9796ce4c8d793de82298df7
+  - enabled: 1
+    path: Assets/Scenes/Act One.unity
+    guid: 3fbe78103fb1b7044be1ba4647de5533
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
