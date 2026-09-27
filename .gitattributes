@@ -102,10 +102,10 @@ Packages/packages-lock.json linguist-generated
 *.aiff                  lfs
 *.it                    lfs
 *.mod                   lfs
-*.mp3                   lfs
+*.mp3                   binary
 *.ogg                   lfs
 *.s3m                   lfs
-*.wav                   lfs
+*.wav                   binary
 *.xm                    lfs
 
 # Video
@@ -113,7 +113,7 @@ Packages/packages-lock.json linguist-generated
 *.avi                   lfs
 *.flv                   lfs
 *.mov                   lfs
-*.mp4                   lfs
+*.mp4                   binary
 *.mpeg                  lfs
 *.mpg                   lfs
 *.ogv                   lfs
@@ -150,7 +150,7 @@ Packages/packages-lock.json linguist-generated
 
 # Fonts
 *.otf                   lfs
-*.ttf                   lfs
+*.ttf                   binary
 
 # Executable/Installer
 *.apk                   lfs
