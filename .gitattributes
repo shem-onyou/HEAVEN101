@@ -125,10 +125,10 @@ Packages/packages-lock.json linguist-generated
 *.gif                   lfs
 *.hdr                   lfs
 *.iff                   lfs
-*.jpeg                  lfs
-*.jpg                   lfs
+*.jpeg                  binary
+*.jpg                   binary
 *.pict                  lfs
-*.png                   lfs
+*.png                   binary
 *.psd                   lfs
 *.tga                   lfs
 *.tif                   lfs
