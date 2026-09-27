@@ -5,11 +5,14 @@ TextureImporter:
   - first:
       213: -4654304538220825731
     second: Lord Asset1_0
+  - first:
+      213: 6827761411168260952
+    second: Lord Asset1_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
     mipMapMode: 0
-    enableMipMap: 0
+    enableMipMap: 1
     sRGBTexture: 1
     linearTexture: 0
     fadeOut: 0
@@ -129,12 +132,12 @@ TextureImporter:
       name: Lord Asset1_0
       rect:
         serializedVersion: 2
-        x: 20
-        y: 29
-        width: 84
-        height: 72
+        x: 164
+        y: 298
+        width: 8
+        height: 8
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -147,11 +150,33 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Lord Asset1_1
+      rect:
+        serializedVersion: 2
+        x: 171
+        y: 235
+        width: 634
+        height: 548
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 853ddc314d411ce50800000000000000
+      internalID: 6827761411168260952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: ba27c3b815b1c7343bfa712cddfdf1a7
     internalID: 0
     vertices: []
     indices: 
@@ -162,6 +187,7 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       Lord Asset1_0: -4654304538220825731
+      Lord Asset1_1: 6827761411168260952
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

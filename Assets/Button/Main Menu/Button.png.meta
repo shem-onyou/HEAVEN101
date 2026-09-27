@@ -135,12 +135,12 @@ TextureImporter:
       name: Button_0
       rect:
         serializedVersion: 2
-        x: 403
-        y: 1541
-        width: 1194
-        height: 260
+        x: 0
+        y: 667
+        width: 1000
+        height: 333
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -157,12 +157,12 @@ TextureImporter:
       name: Button_1
       rect:
         serializedVersion: 2
-        x: 403
-        y: 870
-        width: 1194
-        height: 260
+        x: 0
+        y: 359
+        width: 1000
+        height: 333
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -179,12 +179,12 @@ TextureImporter:
       name: Button_2
       rect:
         serializedVersion: 2
-        x: 403
-        y: 199
-        width: 1194
-        height: 260
+        x: 0
+        y: 1
+        width: 1000
+        height: 333
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -201,7 +201,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 212fa96711d3873479642da820621c91
     internalID: 0
     vertices: []
     indices: 
@@ -209,7 +209,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":3.0},"gridSpriteSize":{"x":1000.0,"y":333.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       Button_0: 649223268058989734
       Button_1: -9000188618666376746

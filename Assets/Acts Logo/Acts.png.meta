@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: ae6b21a96a574944e9fd76a3fe6990e8
+guid: 0caf3adc06184b349b3840a7723d3e2e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4397022470312640762
-    second: Dialog Box2_0
+      213: -8088586950160908915
+    second: Acts_0
+  - first:
+      213: -7451502308202840940
+    second: Acts_1
+  - first:
+      213: -6948360772333718997
+    second: Acts_2
+  - first:
+      213: 5261786149042046851
+    second: Acts_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -97,6 +106,19 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -113,23 +135,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Dialog Box2_0
+      name: Acts_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 128
-        height: 35
+        y: 1000
+        width: 1000
+        height: 1000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 60fba931c53aaf2c0800000000000000
-      internalID: -4397022470312640762
+      spriteID: d8d7cc426019fbf80800000000000000
+      internalID: -8088586950160908915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Acts_1
+      rect:
+        serializedVersion: 2
+        x: 1000
+        y: 1000
+        width: 1000
+        height: 1000
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49cf0946122f69890800000000000000
+      internalID: -7451502308202840940
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Acts_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1000
+        height: 1000
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b223ac901b6729f90800000000000000
+      internalID: -6948360772333718997
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Acts_3
+      rect:
+        serializedVersion: 2
+        x: 1000
+        y: 0
+        width: 1000
+        height: 1000
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 387c8b9df9e950940800000000000000
+      internalID: 5261786149042046851
       vertices: []
       indices: 
       edges: []
@@ -138,7 +226,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: b369fa931a5f3e840a9459c627e743d0
     internalID: 0
     vertices: []
     indices: 
@@ -146,9 +234,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":2.0,"y":2.0},"gridSpriteSize":{"x":1000.0,"y":1000.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Dialog Box2_0: -4397022470312640762
+      Acts_0: -8088586950160908915
+      Acts_1: -7451502308202840940
+      Acts_2: -6948360772333718997
+      Acts_3: 5261786149042046851
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
