@@ -92,7 +92,6 @@ public class A1_bedroom_control : MonoBehaviour
             dialogueList.Add(new A1BedroomDialogueLine("You", "But that is not the answer."));
             dialogueList.Add(new A1BedroomDialogueLine("You", "I am giving you a chance."));
             dialogueList.Add(new A1BedroomDialogueLine("You", "This vision is a warning to you, the day of Judgement is near, which I, the only God will judge you on what you have done."));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "GO, WAKE UP AND SEEK THE ANSWER."));
         }
 
         if (choiceContainer != null)
