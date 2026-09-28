@@ -31,6 +31,9 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/Scenes/Act One.unity
     m_guid: 3fbe78103fb1b7044be1ba4647de5533
+  - m_enabled: 1
+    m_path: Assets/Scenes/A1_Bedroom.unity
+    m_guid: 2acbee4fc33bf104d906ddc44d02d19a
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:

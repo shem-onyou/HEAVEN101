@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement; // Required for loading scenes
 using TMPro;
 
 [System.Serializable]
@@ -20,7 +21,6 @@ public class DialogueLine
     [Header("Player Choice Options (Optional)")]
     public List<ChoiceOption> choices;
 
-    // Single constructor that handles both standard lines and lines with choices
     public DialogueLine(string name, string msg, List<ChoiceOption> choiceOptions = null)
     {
         speakerName = name;
@@ -33,6 +33,7 @@ public class SceneController : MonoBehaviour
 {
     [Header("Cutscene Objects")]
     public GameObject fadeScreenIn;
+    public GameObject fadeOutScreen; // <--- Drag your FadeOut GameObject here
     public GameObject charLord;
     public GameObject dialogueBox;
     public GameObject nextButton;
@@ -100,6 +101,9 @@ public class SceneController : MonoBehaviour
         if (choiceContainer != null)
             choiceContainer.SetActive(false);
 
+        if (fadeOutScreen != null)
+            fadeOutScreen.SetActive(false); // Ensure fadeout panel starts disabled
+
         StartCoroutine(StartCutscene());
     }
 
@@ -122,17 +126,14 @@ public class SceneController : MonoBehaviour
 
     public void NextButton()
     {
-        // 1. Instantly complete current line if typing
         if (isTyping)
         {
             CompleteTypingInstantly();
             return;
         }
 
-        // 2. Advance to the next line
         currentLineIndex++;
 
-        // End of Path A safeguard before Path B begins
         if (currentLineIndex == 16 || currentLineIndex >= dialogueList.Count)
         {
             EndDialogue();
@@ -157,7 +158,7 @@ public class SceneController : MonoBehaviour
 
         typingCoroutine = StartCoroutine(TypeText(line.message));
     }
-
+    
     private IEnumerator TypeText(string targetMessage)
     {
         isTyping = true;
@@ -227,8 +228,49 @@ public class SceneController : MonoBehaviour
 
     private void EndDialogue()
     {
+        StartCoroutine(FadeOutSequence());
+    }
+
+    private IEnumerator FadeOutSequence()
+    {
+        // 1. Hide dialogue UI elements
         if (nextButton != null) nextButton.SetActive(false);
         if (choiceContainer != null) choiceContainer.SetActive(false);
-        Debug.Log("Heaven Dialogue Finished!");
+        if (dialogueBox != null) dialogueBox.SetActive(false);
+
+        // 2. Show the black screen immediately
+        if (fadeOutScreen != null)
+        {
+            fadeOutScreen.SetActive(true);
+
+            CanvasGroup canvasGroup = fadeOutScreen.GetComponent<CanvasGroup>();
+            Image fadeImage = fadeOutScreen.GetComponent<Image>();
+
+            if (canvasGroup == null && fadeImage == null)
+            {
+                canvasGroup = fadeOutScreen.AddComponent<CanvasGroup>();
+            }
+
+            if (fadeImage != null)
+            {
+                fadeImage.color = Color.black;
+            }
+
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+            }
+            else if (fadeImage != null)
+            {
+                Color c = fadeImage.color;
+                c.a = 1f;
+                fadeImage.color = c;
+            }
+        }
+
+        yield return new WaitForSeconds(0.5f); // Pause briefly while full black
+
+        // 3. Change to the A1_Bedroom scene
+        SceneManager.LoadScene("A1_Bedroom");
     }
 }
