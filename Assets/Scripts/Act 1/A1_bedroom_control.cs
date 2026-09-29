@@ -6,26 +6,15 @@ using UnityEngine.SceneManagement;
 using TMPro;
 
 [System.Serializable]
-public class A1BedroomChoiceOption
-{
-    public string choiceText;
-    public int nextDialogueIndex;
-}
-
-[System.Serializable]
 public class A1BedroomDialogueLine
 {
     public string speakerName;
     [TextArea(2, 5)] public string message;
 
-    [Header("Player Choice Options (Optional)")]
-    public List<A1BedroomChoiceOption> choices;
-
-    public A1BedroomDialogueLine(string name, string msg, List<A1BedroomChoiceOption> choiceOptions = null)
+    public A1BedroomDialogueLine(string name, string msg)
     {
         speakerName = name;
         message = msg;
-        choices = choiceOptions;
     }
 }
 
@@ -41,9 +30,8 @@ public class A1_bedroom_control : MonoBehaviour
     [Header("Choice System Objects")]
     public GameObject choiceContainer;
     public Button choiceButton1;
-    public Button choiceButton2;
     public TMP_Text choiceButton1Text;
-    public TMP_Text choiceButton2Text;
+    [SerializeField, HideInInspector] private Button choiceButton2;
 
     [Header("Text UI References")]
     public TMP_Text charNameText;
@@ -63,35 +51,18 @@ public class A1_bedroom_control : MonoBehaviour
     {
         if (dialogueList.Count == 0)
         {
-            dialogueList.Add(new A1BedroomDialogueLine("You", "*sigh* Where am I?"));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "*shocked* Who... no, What are you?"));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "I am the Creator of all things, I am the only one TRUE GOD."));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "God!?..."));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "Am I Dead? Am I in Heaven? Ho... How did I die? This is just a dream right?"));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "Easy now, child. Let me explain."));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "Yes, you are mortally dead or sleep. you are now a spiritual being outside the gates of Heaven."));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "This is the the day that all of you will face me, This is the Judgement Day. But now, this is just a vision in your dreams."));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "*shocked*"));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "Tell me child."));
+            dialogueList.Add(new A1BedroomDialogueLine("You", "Huhhh?"));
+            dialogueList.Add(new A1BedroomDialogueLine("You", "I'm alive."));
+            dialogueList.Add(new A1BedroomDialogueLine("You", "Did that really happen?"));
+            dialogueList.Add(new A1BedroomDialogueLine("You", "God..."));
+            dialogueList.Add(new A1BedroomDialogueLine("You", "How will I enter the gates of Heaven?"));
+            dialogueList.Add(new A1BedroomDialogueLine("You", "Hmmmmm..."));
+            dialogueList.Add(new A1BedroomDialogueLine("You", "Huh? Oh right!"));
+            dialogueList.Add(new A1BedroomDialogueLine("You", "I gotta go to school, it's already late!"));
+            dialogueList.Add(new A1BedroomDialogueLine("You", "*wearing clothes*"));
+            dialogueList.Add(new A1BedroomDialogueLine("You", "All right, I'm set."));
 
-            List<A1BedroomChoiceOption> questionChoices = new List<A1BedroomChoiceOption>()
-            {
-                new A1BedroomChoiceOption { choiceText = "...", nextDialogueIndex = 11 },
-                new A1BedroomChoiceOption { choiceText = "I'm not bad.", nextDialogueIndex = 16 }
-            };
-            dialogueList.Add(new A1BedroomDialogueLine("You", "Why should I let you enter my kingdom?", questionChoices));
-
-            dialogueList.Add(new A1BedroomDialogueLine("You", "I.... I don't know God."));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "You don't know."));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "Very well, I will give the chance and let you find the answer to my question."));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "I must warn you, the day of Judgement is near, which I, then only God will judge you fair on what you have done."));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "GO, WAKE UP AND SEEK THE ANSWER."));
-
-            dialogueList.Add(new A1BedroomDialogueLine("You", "Because, I am good with my parents, friends, I help them and I follow them. I did not do anything bad."));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "I see."));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "But that is not the answer."));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "I am giving you a chance."));
-            dialogueList.Add(new A1BedroomDialogueLine("You", "This vision is a warning to you, the day of Judgement is near, which I, the only God will judge you on what you have done."));
+            dialogueList.Add(new A1BedroomDialogueLine("You", "..."));
         }
 
         if (choiceContainer != null)
@@ -138,14 +109,13 @@ public class A1_bedroom_control : MonoBehaviour
             return;
         }
 
-        currentLineIndex++;
-
-        if (currentLineIndex == 16 || currentLineIndex >= dialogueList.Count)
+        if (currentLineIndex + 1 >= dialogueList.Count)
         {
             EndDialogue();
             return;
         }
 
+        currentLineIndex++;
         DisplayLine(currentLineIndex);
     }
 
@@ -157,7 +127,7 @@ public class A1_bedroom_control : MonoBehaviour
         A1BedroomDialogueLine line = dialogueList[index];
 
         if (charNameText != null)
-            charNameText.text = "You";
+            charNameText.text = line.speakerName;
 
         if (typingCoroutine != null)
             StopCoroutine(typingCoroutine);
@@ -196,40 +166,30 @@ public class A1_bedroom_control : MonoBehaviour
     {
         isTyping = false;
 
-        A1BedroomDialogueLine line = dialogueList[currentLineIndex];
-        if (line.choices != null && line.choices.Count > 0)
+        if (currentLineIndex == dialogueList.Count - 1)
         {
-            ShowChoices(line.choices);
+            ShowLivingRoomChoice();
         }
     }
 
-    private void ShowChoices(List<A1BedroomChoiceOption> choices)
+    private void ShowLivingRoomChoice()
     {
         if (nextButton != null) nextButton.SetActive(false);
         if (choiceContainer != null) choiceContainer.SetActive(true);
 
-        if (choices.Count > 0 && choiceButton1 != null)
+        if (choiceButton2 != null)
         {
-            if (choiceButton1Text != null) choiceButton1Text.text = choices[0].choiceText;
-            choiceButton1.onClick.RemoveAllListeners();
-            int index0 = choices[0].nextDialogueIndex;
-            choiceButton1.onClick.AddListener(() => MakeChoice(index0));
-        }
-
-        if (choices.Count > 1 && choiceButton2 != null)
-        {
-            if (choiceButton2Text != null) choiceButton2Text.text = choices[1].choiceText;
             choiceButton2.onClick.RemoveAllListeners();
-            int index1 = choices[1].nextDialogueIndex;
-            choiceButton2.onClick.AddListener(() => MakeChoice(index1));
+            choiceButton2.gameObject.SetActive(false);
         }
-    }
 
-    public void MakeChoice(int targetIndex)
-    {
-        if (choiceContainer != null) choiceContainer.SetActive(false);
-        currentLineIndex = targetIndex;
-        DisplayLine(currentLineIndex);
+        if (choiceButton1 != null)
+        {
+            choiceButton1.gameObject.SetActive(true);
+            if (choiceButton1Text != null) choiceButton1Text.text = "Go to the living room.";
+            choiceButton1.onClick.RemoveAllListeners();
+            choiceButton1.onClick.AddListener(EndDialogue);
+        }
     }
 
     private void EndDialogue()
@@ -273,6 +233,7 @@ public class A1_bedroom_control : MonoBehaviour
         }
 
         yield return new WaitForSeconds(0.5f);
-        SceneManager.LoadScene("A1_Bedroom");
+        SceneManager.LoadScene("A1_LivingRoom");
     }
 }
+//ANG NEXT NA GAGAWIN AY SA LIVING ROOM, KUNG SAAN MAY MGA CHOICE NA PWEDE PILIIN NG PLAYER. AT MAKIKIPAG USAP SA NANAY 9/29/2026
