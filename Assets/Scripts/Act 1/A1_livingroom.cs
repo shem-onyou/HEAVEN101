@@ -26,8 +26,6 @@ public class A1_livingroom : MonoBehaviour
     public GameObject fadeScreenIn;
     [FormerlySerializedAs("livingRoomFadeOutScreen")]
     public GameObject fadeOutScreen;
-    [FormerlySerializedAs("livingRoomCharacter")]
-    public GameObject charLord;
     public GameObject nanayCharacter;
     [FormerlySerializedAs("livingRoomDialogueBox")]
     public GameObject dialogueBox;
@@ -61,11 +59,41 @@ public class A1_livingroom : MonoBehaviour
     private int currentLineIndex = 0;
     private Coroutine typingCoroutine;
     private bool isTyping = false;
+    private Vector3 nanayOriginalPosition;
+    private Vector3 nanayOffscreenPosition;
 
     void Start()
     {
+        if (dialogueList.Count == 0)
+        {
+            dialogueList.Add(new A1LivingRoomDialogueLine("You", "Huh... what time is it?"));
+            dialogueList.Add(new A1LivingRoomDialogueLine("Nanay", "Anak, it's already late! You're going to miss school again."));
+            dialogueList.Add(new A1LivingRoomDialogueLine("You", "Oh no! I overslept."));
+            dialogueList.Add(new A1LivingRoomDialogueLine("Nanay", "Yes, and before you leave, help me first with the chores."));
+            dialogueList.Add(new A1LivingRoomDialogueLine("You", "What chores, Nanay?"));
+            dialogueList.Add(new A1LivingRoomDialogueLine("Nanay", "Please wash the dishes and sweep the living room."));
+            dialogueList.Add(new A1LivingRoomDialogueLine("You", "But I’m already late for school!"));
+            dialogueList.Add(new A1LivingRoomDialogueLine("Nanay", "I know, anak. Just do it fast, then you can go."));
+            dialogueList.Add(new A1LivingRoomDialogueLine("You", "Okay, Nanay. I'll help you first."));
+            dialogueList.Add(new A1LivingRoomDialogueLine("Nanay", "Thank you, anak. Hurry up, okay?"));
+        }
+
         if (choiceContainer != null)
             choiceContainer.SetActive(false);
+
+        if (dialogueBox != null)
+            dialogueBox.SetActive(false);
+
+        if (nanayCharacter != null)
+        {
+            nanayOriginalPosition = nanayCharacter.transform.position;
+            nanayOffscreenPosition = new Vector3(nanayOriginalPosition.x + 8f, nanayOriginalPosition.y, nanayOriginalPosition.z);
+            nanayCharacter.transform.position = nanayOffscreenPosition;
+            nanayCharacter.SetActive(false);
+        }
+
+        if (nextButton != null)
+            nextButton.SetActive(false);
 
         if (fadeOutScreen != null)
             fadeOutScreen.SetActive(false);
@@ -93,15 +121,41 @@ public class A1_livingroom : MonoBehaviour
     {
         yield return new WaitForSeconds(3f);
         if (fadeScreenIn != null) fadeScreenIn.SetActive(false);
-        if (charLord != null) charLord.SetActive(true);
 
         yield return new WaitForSeconds(2f);
         if (dialogueBox != null) dialogueBox.SetActive(true);
 
-        yield return new WaitForSeconds(1f);
-
         if (dialogueList.Count > 0)
             DisplayLivingRoomLine(currentLineIndex);
+
+        yield return new WaitForSeconds(1f);
+
+        if (nanayCharacter != null)
+        {
+            nanayCharacter.SetActive(true);
+            StartCoroutine(EnterNanayFromRight());
+        }
+    }
+
+    private IEnumerator EnterNanayFromRight()
+    {
+        if (nanayCharacter == null)
+            yield break;
+
+        Vector3 startPosition = nanayOffscreenPosition;
+        Vector3 targetPosition = nanayOriginalPosition;
+        float duration = 1.2f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            nanayCharacter.transform.position = Vector3.Lerp(startPosition, targetPosition, t);
+            yield return null;
+        }
+
+        nanayCharacter.transform.position = targetPosition;
     }
 
     public void NextLivingRoomButton()

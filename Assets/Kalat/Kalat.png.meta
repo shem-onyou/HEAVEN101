@@ -1,0 +1,689 @@
+fileFormatVersion: 2
+guid: 7ef10d416475ee24d99f095ce7efff8f
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 9019363163562037768
+    second: Kalat_0
+  - first:
+      213: 8164744797595942860
+    second: Kalat_1
+  - first:
+      213: -5841695882856898398
+    second: Kalat_2
+  - first:
+      213: 7678810411515664117
+    second: Kalat_3
+  - first:
+      213: 2288042874301425032
+    second: Kalat_4
+  - first:
+      213: -5516695017821925081
+    second: Kalat_5
+  - first:
+      213: -3649085608565915217
+    second: Kalat_6
+  - first:
+      213: -2496581005747826848
+    second: Kalat_7
+  - first:
+      213: -7254210324124604230
+    second: Kalat_8
+  - first:
+      213: 971443088140974083
+    second: Kalat_9
+  - first:
+      213: 7233156217002239647
+    second: Kalat_10
+  - first:
+      213: 5638083935615768602
+    second: Kalat_11
+  - first:
+      213: 3255175227860943187
+    second: Kalat_12
+  - first:
+      213: 4906708254948959937
+    second: Kalat_13
+  - first:
+      213: -1001559959682371341
+    second: Kalat_14
+  - first:
+      213: 2239001853227338025
+    second: Kalat_15
+  - first:
+      213: 4545448707955330619
+    second: Kalat_16
+  - first:
+      213: -7250011052525387223
+    second: Kalat_17
+  - first:
+      213: 5385645135892107069
+    second: Kalat_18
+  - first:
+      213: 2991604180296300842
+    second: Kalat_19
+  - first:
+      213: 2592679273352217989
+    second: Kalat_20
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Kalat_0
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 770
+        width: 179
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 802db58b2073b2d70800000000000000
+      internalID: 9019363163562037768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_1
+      rect:
+        serializedVersion: 2
+        x: 293
+        y: 763
+        width: 168
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ccfbc6e72200f4170800000000000000
+      internalID: 8164744797595942860
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_2
+      rect:
+        serializedVersion: 2
+        x: 550
+        y: 774
+        width: 166
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a0e3709b802eeea0800000000000000
+      internalID: -5841695882856898398
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_3
+      rect:
+        serializedVersion: 2
+        x: 807
+        y: 772
+        width: 171
+        height: 201
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f656fb926d909a60800000000000000
+      internalID: 7678810411515664117
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_4
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 556
+        width: 206
+        height: 140
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 885a9912fd2c0cf10800000000000000
+      internalID: 2288042874301425032
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_5
+      rect:
+        serializedVersion: 2
+        x: 257
+        y: 527
+        width: 239
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7219e882c13c073b0800000000000000
+      internalID: -5516695017821925081
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_6
+      rect:
+        serializedVersion: 2
+        x: 564
+        y: 660
+        width: 134
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa1407209f7db5dc0800000000000000
+      internalID: -3649085608565915217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_7
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 689
+        width: 134
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06fc96f7dcc5a5dd0800000000000000
+      internalID: -2496581005747826848
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_8
+      rect:
+        serializedVersion: 2
+        x: 765
+        y: 536
+        width: 218
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab8e498052ed35b90800000000000000
+      internalID: -7254210324124604230
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_9
+      rect:
+        serializedVersion: 2
+        x: 589
+        y: 644
+        width: 137
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 308b62c77524b7d00800000000000000
+      internalID: 971443088140974083
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_10
+      rect:
+        serializedVersion: 2
+        x: 543
+        y: 505
+        width: 104
+        height: 96
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f96a357a145516460800000000000000
+      internalID: 7233156217002239647
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_11
+      rect:
+        serializedVersion: 2
+        x: 553
+        y: 532
+        width: 122
+        height: 80
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a18d634b77f7e3e40800000000000000
+      internalID: 5638083935615768602
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_12
+      rect:
+        serializedVersion: 2
+        x: 584
+        y: 544
+        width: 144
+        height: 96
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3518d428f94bc2d20800000000000000
+      internalID: 3255175227860943187
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_13
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 327
+        width: 206
+        height: 97
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c6a5b83921281440800000000000000
+      internalID: 4906708254948959937
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_14
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 270
+        width: 178
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f0b0ede58eb912f0800000000000000
+      internalID: -1001559959682371341
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_15
+      rect:
+        serializedVersion: 2
+        x: 525
+        y: 265
+        width: 213
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9298e01a258821f10800000000000000
+      internalID: 2239001853227338025
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_16
+      rect:
+        serializedVersion: 2
+        x: 776
+        y: 266
+        width: 196
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3e8f6e548da41f30800000000000000
+      internalID: 4545448707955330619
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_17
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 40
+        width: 168
+        height: 139
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92281942c59c26b90800000000000000
+      internalID: -7250011052525387223
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_18
+      rect:
+        serializedVersion: 2
+        x: 265
+        y: 27
+        width: 219
+        height: 166
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3fc82b77b7adba40800000000000000
+      internalID: 5385645135892107069
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_19
+      rect:
+        serializedVersion: 2
+        x: 513
+        y: 6
+        width: 229
+        height: 215
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a29722bd620548920800000000000000
+      internalID: 2991604180296300842
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Kalat_20
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 17
+        width: 225
+        height: 204
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5854da0001c0bf320800000000000000
+      internalID: 2592679273352217989
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Kalat_0: 9019363163562037768
+      Kalat_1: 8164744797595942860
+      Kalat_10: 7233156217002239647
+      Kalat_11: 5638083935615768602
+      Kalat_12: 3255175227860943187
+      Kalat_13: 4906708254948959937
+      Kalat_14: -1001559959682371341
+      Kalat_15: 2239001853227338025
+      Kalat_16: 4545448707955330619
+      Kalat_17: -7250011052525387223
+      Kalat_18: 5385645135892107069
+      Kalat_19: 2991604180296300842
+      Kalat_2: -5841695882856898398
+      Kalat_20: 2592679273352217989
+      Kalat_3: 7678810411515664117
+      Kalat_4: 2288042874301425032
+      Kalat_5: -5516695017821925081
+      Kalat_6: -3649085608565915217
+      Kalat_7: -2496581005747826848
+      Kalat_8: -7254210324124604230
+      Kalat_9: 971443088140974083
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
