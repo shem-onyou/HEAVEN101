@@ -14,9 +14,10 @@ public class ClickableUIItem : MonoBehaviour, IPointerClickHandler
 
     private void OnItemClicked()
     {
-        // Add your custom logic here (e.g., pick up item, open inventory, play audio)
-        
-        // Example: Disable the item after picking it up
+        A1_livingroom controller = FindAnyObjectByType<A1_livingroom>();
+        if (controller != null)
+            controller.RegisterKalatCleaned(this);
+
         gameObject.SetActive(false);
     }
 }

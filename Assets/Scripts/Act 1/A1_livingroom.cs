@@ -7,15 +7,24 @@ using UnityEngine.Serialization;
 using TMPro;
 
 [System.Serializable]
+public class A1LivingRoomChoiceOption
+{
+    public string choiceText;
+    public int nextDialogueIndex;
+}
+
+[System.Serializable]
 public class A1LivingRoomDialogueLine
 {
     public string speakerName;
     [TextArea(2, 5)] public string message;
+    public List<A1LivingRoomChoiceOption> choices = new List<A1LivingRoomChoiceOption>();
 
-    public A1LivingRoomDialogueLine(string name, string msg)
+    public A1LivingRoomDialogueLine(string name, string msg, List<A1LivingRoomChoiceOption> choiceOptions = null)
     {
         speakerName = name;
         message = msg;
+        choices = choiceOptions ?? new List<A1LivingRoomChoiceOption>();
     }
 }
 
@@ -39,6 +48,8 @@ public class A1_livingroom : MonoBehaviour
     public Button choiceButton;
     [FormerlySerializedAs("livingRoomChoiceButtonText")]
     public TMP_Text choiceButtonText;
+    public Button choiceButton2;
+    public TMP_Text choiceButton2Text;
 
     [Header("Text UI References")]
     [FormerlySerializedAs("livingRoomCharacterNameText")]
@@ -55,15 +66,60 @@ public class A1_livingroom : MonoBehaviour
     public List<A1LivingRoomDialogueLine> dialogueList = new List<A1LivingRoomDialogueLine>();
     [FormerlySerializedAs("livingRoomNextSceneName")]
     [SerializeField] private string nextSceneName;
+    public TMP_Text kalatProgressText;
 
     private int currentLineIndex = 0;
     private Coroutine typingCoroutine;
     private bool isTyping = false;
     private Vector3 nanayOriginalPosition;
     private Vector3 nanayOffscreenPosition;
+    private ClickableUIItem[] clickableKalatItems;
+    private readonly HashSet<ClickableUIItem> cleanedKalatItems = new HashSet<ClickableUIItem>();
+    private bool choresStarted;
+    private bool completionDialogueActive;
+    private bool isSceneTransitionQueued;
+
+    private void Awake()
+    {
+        clickableKalatItems = FindObjectsByType<ClickableUIItem>(FindObjectsInactive.Include);
+        SetKalatItemsClickable(false);
+        EnsureKalatProgressText();
+
+        if (kalatProgressText != null)
+        {
+            kalatProgressText.gameObject.SetActive(false);
+            UpdateKalatProgress();
+        }
+    }
+
+    private void EnsureKalatProgressText()
+    {
+        if (kalatProgressText != null)
+            return;
+
+        GameObject progressObject = GameObject.Find("Kalat_progress");
+        if (progressObject != null)
+        {
+            kalatProgressText = progressObject.GetComponent<TMP_Text>();
+            return;
+        }
+
+        TMP_Text[] allTexts = Resources.FindObjectsOfTypeAll<TMP_Text>();
+        foreach (TMP_Text text in allTexts)
+        {
+            if (text != null && text.name == "Kalat_progress")
+            {
+                kalatProgressText = text;
+                return;
+            }
+        }
+    }
 
     void Start()
     {
+        if (string.IsNullOrEmpty(nextSceneName))
+            nextSceneName = "A1_School";
+
         if (dialogueList.Count == 0)
         {
             dialogueList.Add(new A1LivingRoomDialogueLine("You", "Huh... what time is it?"));
@@ -71,7 +127,11 @@ public class A1_livingroom : MonoBehaviour
             dialogueList.Add(new A1LivingRoomDialogueLine("You", "Oh no! I overslept."));
             dialogueList.Add(new A1LivingRoomDialogueLine("Nanay", "Yes, and before you leave, help me first with the chores."));
             dialogueList.Add(new A1LivingRoomDialogueLine("You", "What chores, Nanay?"));
-            dialogueList.Add(new A1LivingRoomDialogueLine("Nanay", "Please wash the dishes and sweep the living room."));
+            dialogueList.Add(new A1LivingRoomDialogueLine("Nanay", "Please wash the dishes and sweep the living room.", new List<A1LivingRoomChoiceOption>
+            {
+                new A1LivingRoomChoiceOption { choiceText = "Do it", nextDialogueIndex = 8 },
+                new A1LivingRoomChoiceOption { choiceText = "But I'm late", nextDialogueIndex = 6 }
+            }));
             dialogueList.Add(new A1LivingRoomDialogueLine("You", "But I’m already late for school!"));
             dialogueList.Add(new A1LivingRoomDialogueLine("Nanay", "I know, anak. Just do it fast, then you can go."));
             dialogueList.Add(new A1LivingRoomDialogueLine("You", "Okay, Nanay. I'll help you first."));
@@ -106,12 +166,6 @@ public class A1_livingroom : MonoBehaviour
                 nextDialogueButton.onClick.RemoveAllListeners();
                 nextDialogueButton.onClick.AddListener(NextLivingRoomButton);
             }
-        }
-
-        if (choiceButton != null)
-        {
-            choiceButton.onClick.RemoveAllListeners();
-            choiceButton.onClick.AddListener(EndLivingRoomDialogue);
         }
 
         StartCoroutine(StartLivingRoomCutscene());
@@ -162,6 +216,11 @@ public class A1_livingroom : MonoBehaviour
     {
         if (isTyping)
         {
+            if (completionDialogueActive && currentLineIndex == dialogueList.Count - 1)
+            {
+                return;
+            }
+
             CompleteLivingRoomTypingInstantly();
             return;
         }
@@ -209,8 +268,10 @@ public class A1_livingroom : MonoBehaviour
 
         isTyping = false;
 
-        if (currentLineIndex == dialogueList.Count - 1)
+        if (HasLivingRoomChoices(currentLineIndex))
             ShowLivingRoomChoice();
+        else if (currentLineIndex == dialogueList.Count - 1)
+            EndLivingRoomDialogue();
     }
 
     private void CompleteLivingRoomTypingInstantly()
@@ -221,55 +282,135 @@ public class A1_livingroom : MonoBehaviour
         messageInputText.maxVisibleCharacters = messageInputText.textInfo.characterCount;
         isTyping = false;
 
-        if (currentLineIndex == dialogueList.Count - 1)
+        if (HasLivingRoomChoices(currentLineIndex))
             ShowLivingRoomChoice();
+        else if (currentLineIndex == dialogueList.Count - 1)
+            EndLivingRoomDialogue();
+    }
+
+    private bool HasLivingRoomChoices(int index)
+    {
+        return dialogueList[index].choices != null && dialogueList[index].choices.Count > 0;
     }
 
     private void ShowLivingRoomChoice()
     {
         if (nextButton != null) nextButton.SetActive(false);
         if (choiceContainer != null) choiceContainer.SetActive(true);
-        if (choiceButton != null) choiceButton.gameObject.SetActive(true);
-        if (choiceButtonText != null) choiceButtonText.text = "Continue";
+
+        if (choiceButton != null)
+        {
+            choiceButton.gameObject.SetActive(true);
+            choiceButton.onClick.RemoveAllListeners();
+        }
+
+        if (choiceButton2 != null)
+        {
+            choiceButton2.gameObject.SetActive(false);
+            choiceButton2.onClick.RemoveAllListeners();
+        }
+
+        List<A1LivingRoomChoiceOption> choices = dialogueList[currentLineIndex].choices;
+        if (choices != null && choices.Count > 0)
+        {
+            if (choiceButton != null)
+            {
+                if (choiceButtonText != null) choiceButtonText.text = choices[0].choiceText;
+                int firstTargetIndex = choices[0].nextDialogueIndex;
+                choiceButton.onClick.AddListener(() => MakeLivingRoomChoice(firstTargetIndex));
+            }
+
+            if (choices.Count > 1 && choiceButton2 != null)
+            {
+                choiceButton2.gameObject.SetActive(true);
+                if (choiceButton2Text != null) choiceButton2Text.text = choices[1].choiceText;
+                int secondTargetIndex = choices[1].nextDialogueIndex;
+                choiceButton2.onClick.AddListener(() => MakeLivingRoomChoice(secondTargetIndex));
+            }
+
+            return;
+        }
+
+    }
+
+    private void MakeLivingRoomChoice(int targetIndex)
+    {
+        if (targetIndex < 0 || targetIndex >= dialogueList.Count)
+            return;
+
+        if (choiceContainer != null) choiceContainer.SetActive(false);
+        currentLineIndex = targetIndex;
+        DisplayLivingRoomLine(currentLineIndex);
     }
 
     private void EndLivingRoomDialogue()
     {
-        StartCoroutine(FadeOutLivingRoomSequence());
-    }
-
-    private IEnumerator FadeOutLivingRoomSequence()
-    {
         if (nextButton != null) nextButton.SetActive(false);
         if (choiceContainer != null) choiceContainer.SetActive(false);
         if (dialogueBox != null) dialogueBox.SetActive(false);
+        if (nanayCharacter != null) nanayCharacter.SetActive(false);
 
-        if (fadeOutScreen != null)
+        if (!choresStarted)
         {
-            fadeOutScreen.SetActive(true);
-
-            CanvasGroup canvasGroup = fadeOutScreen.GetComponent<CanvasGroup>();
-            Image fadeImage = fadeOutScreen.GetComponent<Image>();
-
-            if (canvasGroup == null && fadeImage == null)
-                canvasGroup = fadeOutScreen.AddComponent<CanvasGroup>();
-
-            if (fadeImage != null)
-                fadeImage.color = Color.black;
-
-            if (canvasGroup != null)
-                canvasGroup.alpha = 1f;
-            else if (fadeImage != null)
+            choresStarted = true;
+            EnsureKalatProgressText();
+            UpdateKalatProgress();
+            if (kalatProgressText != null)
             {
-                Color color = fadeImage.color;
-                color.a = 1f;
-                fadeImage.color = color;
+                kalatProgressText.gameObject.SetActive(true);
+                kalatProgressText.enabled = true;
             }
+            SetKalatItemsClickable(true);
+            return;
         }
 
-        yield return new WaitForSeconds(0.5f);
+        if (completionDialogueActive && !isSceneTransitionQueued)
+        {
+            isSceneTransitionQueued = true;
+            StartCoroutine(LoadNextSceneAfterDelay());
+        }
+    }
 
-        if (!string.IsNullOrEmpty(nextSceneName))
-            SceneManager.LoadScene(nextSceneName);
+    private IEnumerator LoadNextSceneAfterDelay()
+    {
+        yield return new WaitForSeconds(1.5f);
+        SceneManager.LoadScene(nextSceneName);
+    }
+
+    public void RegisterKalatCleaned(ClickableUIItem item)
+    {
+        if (!choresStarted || item == null || !cleanedKalatItems.Add(item))
+            return;
+
+        UpdateKalatProgress();
+
+        if (cleanedKalatItems.Count >= clickableKalatItems.Length)
+            ShowCompletionDialogue();
+    }
+
+    private void UpdateKalatProgress()
+    {
+        if (kalatProgressText != null)
+            kalatProgressText.text = $"Kalat: {cleanedKalatItems.Count} / {clickableKalatItems.Length}";
+    }
+
+    private void ShowCompletionDialogue()
+    {
+        if (kalatProgressText != null) kalatProgressText.gameObject.SetActive(false);
+
+        completionDialogueActive = true;
+
+        dialogueList.Add(new A1LivingRoomDialogueLine("You", "I'm finished, Nanay. I'm going to school now."));
+        dialogueList.Add(new A1LivingRoomDialogueLine("Nanay", "All right, anak. Be careful on your way to school!"));
+        currentLineIndex = dialogueList.Count - 2;
+
+        if (dialogueBox != null) dialogueBox.SetActive(true);
+        DisplayLivingRoomLine(currentLineIndex);
+    }
+
+    private void SetKalatItemsClickable(bool clickable)
+    {
+        foreach (ClickableUIItem item in clickableKalatItems)
+            item.enabled = clickable;
     }
 }

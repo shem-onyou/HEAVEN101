@@ -37,6 +37,9 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/Scenes/A1_LivingRoom.unity
     m_guid: 8070b592ec964c34f80eab81d409b7fc
+  - m_enabled: 1
+    m_path: Assets/Scenes/A1_School.unity
+    m_guid: 02b20d3998b7ae247b1edacad60efec6
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
