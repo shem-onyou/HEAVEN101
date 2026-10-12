@@ -43,12 +43,6 @@ public class A1_bedroom_control : MonoBehaviour
     [Header("Dialogue Sequence")]
     public List<A1BedroomDialogueLine> dialogueList = new List<A1BedroomDialogueLine>();
 
-    [Header("Random Ambient Audio")]
-    [SerializeField] private AudioSource birdsAudioSource;
-    [SerializeField] private Vector2 birdsInterval = new Vector2(5f, 15f);
-    [SerializeField] private AudioSource roosterCrowsAudioSource;
-    [SerializeField] private Vector2 roosterCrowsInterval = new Vector2(20f, 45f);
-
     [Header("Scene Exit Audio")]
     [SerializeField] private AudioSource doorOpenCloseAudioSource;
 
@@ -91,53 +85,13 @@ public class A1_bedroom_control : MonoBehaviour
             }
         }
 
-        StartRandomAmbientAudio();
         StartCoroutine(StartCutscene());
-    }
-
-    private void StartRandomAmbientAudio()
-    {
-        if (birdsAudioSource == null)
-            birdsAudioSource = FindAudioSource("birds");
-
-        if (roosterCrowsAudioSource == null)
-            roosterCrowsAudioSource = FindAudioSource("RoosterCrows");
-
-        StartRandomAudio(birdsAudioSource, birdsInterval);
-        StartRandomAudio(roosterCrowsAudioSource, roosterCrowsInterval, true);
     }
 
     private AudioSource FindAudioSource(string objectName)
     {
         GameObject audioObject = GameObject.Find(objectName);
         return audioObject != null ? audioObject.GetComponent<AudioSource>() : null;
-    }
-
-    private void StartRandomAudio(AudioSource audioSource, Vector2 interval, bool playImmediately = false)
-    {
-        if (audioSource == null)
-            return;
-
-        audioSource.playOnAwake = false;
-        audioSource.Stop();
-        if (playImmediately && audioSource.clip != null)
-            audioSource.Play();
-
-        StartCoroutine(PlayRandomly(audioSource, interval));
-    }
-
-    private IEnumerator PlayRandomly(AudioSource audioSource, Vector2 interval)
-    {
-        float minimumInterval = Mathf.Min(interval.x, interval.y);
-        float maximumInterval = Mathf.Max(interval.x, interval.y);
-
-        while (audioSource != null)
-        {
-            yield return new WaitForSeconds(Random.Range(minimumInterval, maximumInterval));
-
-            if (audioSource != null && audioSource.clip != null && !audioSource.isPlaying)
-                audioSource.Play();
-        }
     }
 
     IEnumerator StartCutscene()
