@@ -328,10 +328,6 @@ MonoBehaviour:
   messageInputText: {fileID: 3430214}
   typingSpeed: 0.03
   dialogueList: []
-  birdsAudioSource: {fileID: 0}
-  birdsInterval: {x: 5, y: 15}
-  roosterCrowsAudioSource: {fileID: 0}
-  roosterCrowsInterval: {x: 20, y: 45}
   doorOpenCloseAudioSource: {fileID: 0}
 --- !u!1 &123545880
 GameObject:
@@ -1490,7 +1486,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 18accbc2fe6b83e47b3882a17fe7dce3, type: 3}
+  m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
   m_Volume: 0.4
   m_Pitch: 1
