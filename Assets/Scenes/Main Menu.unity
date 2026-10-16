@@ -458,7 +458,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2111544720}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SceneController, Assembly-CSharp
         m_MethodName: LoadSceneByName
         m_Mode: 5
@@ -696,7 +696,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2111544720}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SceneController, Assembly-CSharp
         m_MethodName: LoadSceneByName
         m_Mode: 5
@@ -1071,7 +1071,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2111544720}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SceneController, Assembly-CSharp
         m_MethodName: LoadSceneByName
         m_Mode: 5
@@ -1499,7 +1499,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2111544720}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SceneController, Assembly-CSharp
         m_MethodName: LoadSceneByName
         m_Mode: 5
@@ -1787,7 +1787,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2111544721}
-  - component: {fileID: 2111544720}
+  - component: {fileID: 2111544722}
   m_Layer: 0
   m_Name: SceneManager
   m_TagString: Untagged
@@ -1795,18 +1795,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2111544720
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2111544719}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a0af8f139396c444a96d3894d887e693, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SceneController
 --- !u!4 &2111544721
 Transform:
   m_ObjectHideFlags: 0
@@ -1822,6 +1810,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2111544722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2111544719}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f630ce8f532545d4ebd004b5d3c13b0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MainMenu
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
