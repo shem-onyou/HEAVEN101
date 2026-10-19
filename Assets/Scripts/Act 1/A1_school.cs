@@ -370,7 +370,6 @@ public class A1_school : MonoBehaviour
     private IEnumerator PlayPulubiEntrance()
     {
         if (nextButton != null) nextButton.SetActive(false);
-        if (dialogueBox != null) dialogueBox.SetActive(false);
 
         if (pulubiImage == null)
         {

@@ -37,6 +37,7 @@ public class SceneController : MonoBehaviour
     public GameObject charLord;
     public GameObject dialogueBox;
     public GameObject nextButton;
+    [SerializeField] private AudioSource teleportationAudioSource;
 
     [Header("Choice System Objects")]
     public GameObject choiceContainer;
@@ -63,39 +64,47 @@ public class SceneController : MonoBehaviour
     {
         if (dialogueList.Count == 0)
         {
-            dialogueList.Add(new DialogueLine("You", "*sigh* Where am I?")); // 0
-            dialogueList.Add(new DialogueLine("You", "*shocked* Who... no, What are you?")); // 1
-            dialogueList.Add(new DialogueLine("God", "I am the Creator of all things, I am the only one TRUE GOD.")); // 2
-            dialogueList.Add(new DialogueLine("You", "God!?...")); // 3
-            dialogueList.Add(new DialogueLine("You", "Am I Dead? Am I in Heaven? Ho... How did I die? This is just a dream right?")); // 4
-            dialogueList.Add(new DialogueLine("God", "Easy now, child. Let me explain.")); // 5
-            dialogueList.Add(new DialogueLine("God", "Yes, you are mortally dead or sleep. you are now a spiritual being outside the gates of Heaven.")); // 6
-            dialogueList.Add(new DialogueLine("God", "This is the the day that all of you will face me, This is the Judgement Day. But now, this is just a vision in your dreams.")); // 7
-            dialogueList.Add(new DialogueLine("You", "*shocked*")); // 8
-            dialogueList.Add(new DialogueLine("God", "Tell me child.")); // 9
+            dialogueList.Add(new DialogueLine("You", "My head... Where am I? The last thing I remember is...")); // 0
+            dialogueList.Add(new DialogueLine("You", "You... Who are you? No, what are you?")); // 1
+            dialogueList.Add(new DialogueLine("God", "I am the One who spoke the stars into being and breathed life into every soul. You know me as God.")); // 2
+            dialogueList.Add(new DialogueLine("You", "God? Then... is this Heaven?")); // 3
+            dialogueList.Add(new DialogueLine("You", "Wait... I was somewhere else, wasn't I? Why can't I remember how I got here? What happened to me?")); // 4
+            dialogueList.Add(new DialogueLine("God", "Take a breath, child. Your body still lives, but you have been brought here for a reason.")); // 5
+            dialogueList.Add(new DialogueLine("God", "Your body sleeps. Your spirit has crossed beyond it, and now you stand outside the gates.")); // 6
+            dialogueList.Add(new DialogueLine("God", "This is a vision of the Day of Judgment. One day, every soul will answer for the life it lived.")); // 7
+            dialogueList.Add(new DialogueLine("You", "Every soul...? Including me?")); // 8
+            dialogueList.Add(new DialogueLine("God", "Especially you.")); // 9
 
             // Choice Question (Index 10)
             List<ChoiceOption> questionChoices = new List<ChoiceOption>()
             {
-                new ChoiceOption { choiceText = "...", nextDialogueIndex = 11 },
-                new ChoiceOption { choiceText = "I'm not bad.", nextDialogueIndex = 16 }
+                new ChoiceOption { choiceText = "I don't know...", nextDialogueIndex = 11 },
+                new ChoiceOption { choiceText = "Cause I'm good.", nextDialogueIndex = 17 }
             };
-            dialogueList.Add(new DialogueLine("God", "Why should I let you enter my kingdom?", questionChoices)); // 10
+            dialogueList.Add(new DialogueLine("God", "Tell me, child. Why should I open the gates to you?", questionChoices)); // 10
 
-            // Path A: If Player chooses "..."
-            dialogueList.Add(new DialogueLine("You", "I.... I don't know God.")); // 11
-            dialogueList.Add(new DialogueLine("God", "You don't know.")); // 12
-            dialogueList.Add(new DialogueLine("God", "Very well, I will give the chance and let you find the answer to my question.")); // 13
-            dialogueList.Add(new DialogueLine("God", "I must warn you, the day of Judgement is near, which I, then only God will judge you fair on what you have done.")); // 14
-            dialogueList.Add(new DialogueLine("God", "GO, WAKE UP AND SEEK THE ANSWER.")); // 15
+            // Path A: If Player chooses "I don't know..."
+            dialogueList.Add(new DialogueLine("You", "I... I don't know.")); // 11
+            dialogueList.Add(new DialogueLine("God", "You don't know? Then how have you lived your life?")); // 12
+            dialogueList.Add(new DialogueLine("You", "I just take each day as it comes. I try to help people and treat them well.")); // 13
+            dialogueList.Add(new DialogueLine("God", "I see, but That is not yet the answer I seek. You skipped something important.")); // 14
+            dialogueList.Add(new DialogueLine("God", "Judgment is near. Find the answer before that day. When it comes, no more time will be given.")); // 15
+            dialogueList.Add(new DialogueLine("God", "WAKE UP! And live your remaining life wisely.")); // 16
 
-            // Path B: If Player chooses "I'm not bad."
-            dialogueList.Add(new DialogueLine("You", "Because, I am good with my parents, friends, I help them and I follow them. I did not do anything bad.")); // 16
-            dialogueList.Add(new DialogueLine("God", "I see.")); // 17
-            dialogueList.Add(new DialogueLine("God", "But that is not the answer.")); // 18
-            dialogueList.Add(new DialogueLine("God", "I am giving you a chance.")); // 19
-            dialogueList.Add(new DialogueLine("God", "This vision is a warning to you, the day of Judgement is near, which I, the only God will judge you on what you have done.")); // 20
-            dialogueList.Add(new DialogueLine("God", "GO, WAKE UP AND SEEK THE ANSWER.")); // 21
+            // Path B: If Player chooses "Cause I'm good."
+            dialogueList.Add(new DialogueLine("You", "I tried to be good. I listened to my parents, helped my friends... I never tried to hurt anyone.")); // 17
+            dialogueList.Add(new DialogueLine("God", "You believe goodness is a list of things you have done?")); // 18
+            dialogueList.Add(new DialogueLine("God", "You skipped the most important part.")); // 19
+            dialogueList.Add(new DialogueLine("God", "I will give you chance to find the answer.")); // 20
+            dialogueList.Add(new DialogueLine("God", "What you call a dream is a warning. The Day of Judgment is coming, and every choice you make will matter.")); // 21
+            dialogueList.Add(new DialogueLine("God", "WAKE UP! Seek the answer.")); // 22
+        }
+
+        if (teleportationAudioSource == null)
+        {
+            GameObject teleportationObject = GameObject.Find("Teleportation");
+            if (teleportationObject != null)
+                teleportationAudioSource = teleportationObject.GetComponent<AudioSource>();
         }
 
         if (choiceContainer != null)
@@ -134,7 +143,7 @@ public class SceneController : MonoBehaviour
 
         currentLineIndex++;
 
-        if (currentLineIndex == 16 || currentLineIndex >= dialogueList.Count)
+        if (currentLineIndex == 17 || currentLineIndex >= dialogueList.Count)
         {
             EndDialogue();
             return;
@@ -233,6 +242,13 @@ public class SceneController : MonoBehaviour
 
     private IEnumerator FadeOutSequence()
     {
+        if (teleportationAudioSource != null)
+        {
+            teleportationAudioSource.Play();
+            while (teleportationAudioSource.isPlaying)
+                yield return null;
+        }
+
         // 1. Hide dialogue UI elements
         if (nextButton != null) nextButton.SetActive(false);
         if (choiceContainer != null) choiceContainer.SetActive(false);

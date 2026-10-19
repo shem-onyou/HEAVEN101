@@ -145,12 +145,26 @@ public class A1_bedroom_control : MonoBehaviour
         typingCoroutine = StartCoroutine(TypeText(line.message));
     }
 
+    private void PlayWearingClothesSound()
+    {
+        AudioSource wearingClothesAudioSource = FindAudioSource("wearing-clothes");
+        if (wearingClothesAudioSource == null)
+            return;
+
+        wearingClothesAudioSource.playOnAwake = false;
+        wearingClothesAudioSource.loop = false;
+        wearingClothesAudioSource.Play();
+    }
+
     private IEnumerator TypeText(string targetMessage)
     {
         isTyping = true;
         messageInputText.text = targetMessage;
         messageInputText.maxVisibleCharacters = 0;
         messageInputText.ForceMeshUpdate();
+
+        if (targetMessage == "*wearing clothes*")
+            PlayWearingClothesSound();
 
         int totalCharacters = messageInputText.textInfo.characterCount;
 
