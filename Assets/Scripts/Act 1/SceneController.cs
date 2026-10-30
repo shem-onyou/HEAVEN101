@@ -10,6 +10,7 @@ public class ChoiceOption
 {
     public string choiceText;
     public int nextDialogueIndex;
+    public int points;
 }
 
 [System.Serializable]
@@ -211,20 +212,31 @@ public class SceneController : MonoBehaviour
         if (nextButton != null) nextButton.SetActive(false);
         if (choiceContainer != null) choiceContainer.SetActive(true);
 
+        DialogueLine questionLine = dialogueList[currentLineIndex];
+        string choiceId = $"{SceneManager.GetActiveScene().name}_line{currentLineIndex}";
+
         if (choices.Count > 0 && choiceButton1 != null)
         {
             if (choiceButton1Text != null) choiceButton1Text.text = choices[0].choiceText;
             choiceButton1.onClick.RemoveAllListeners();
-            int index0 = choices[0].nextDialogueIndex;
-            choiceButton1.onClick.AddListener(() => MakeChoice(index0));
+            ChoiceOption option0 = choices[0];
+            choiceButton1.onClick.AddListener(() =>
+            {
+                PlayerDatabase.RecordChoice(choiceId, questionLine.message, option0.choiceText, option0.points);
+                MakeChoice(option0.nextDialogueIndex);
+            });
         }
 
         if (choices.Count > 1 && choiceButton2 != null)
         {
             if (choiceButton2Text != null) choiceButton2Text.text = choices[1].choiceText;
             choiceButton2.onClick.RemoveAllListeners();
-            int index1 = choices[1].nextDialogueIndex;
-            choiceButton2.onClick.AddListener(() => MakeChoice(index1));
+            ChoiceOption option1 = choices[1];
+            choiceButton2.onClick.AddListener(() =>
+            {
+                PlayerDatabase.RecordChoice(choiceId, questionLine.message, option1.choiceText, option1.points);
+                MakeChoice(option1.nextDialogueIndex);
+            });
         }
     }
 

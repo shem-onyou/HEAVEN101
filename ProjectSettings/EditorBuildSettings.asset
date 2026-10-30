@@ -12,10 +12,10 @@ EditorBuildSettings:
     path: Assets/Scenes/Acts.unity
     guid: f70ad8c0e9796ce4c8d793de82298df7
   - enabled: 1
-    path: Assets/Scenes/Act One.unity
+    path: Assets/Scenes/Act1_Scenes/Act One.unity
     guid: 3fbe78103fb1b7044be1ba4647de5533
   - enabled: 1
-    path: Assets/Scenes/A1_Bedroom.unity
+    path: Assets/Scenes/Act1_Scenes/A1_Bedroom.unity
     guid: 2acbee4fc33bf104d906ddc44d02d19a
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}

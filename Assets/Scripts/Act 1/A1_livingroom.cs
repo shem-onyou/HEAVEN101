@@ -11,6 +11,7 @@ public class A1LivingRoomChoiceOption
 {
     public string choiceText;
     public int nextDialogueIndex;
+    public int points;
 }
 
 [System.Serializable]
@@ -76,6 +77,7 @@ public class A1_livingroom : MonoBehaviour
     private ClickableUIItem[] clickableKalatItems;
     private readonly HashSet<ClickableUIItem> cleanedKalatItems = new HashSet<ClickableUIItem>();
     private bool choresStarted;
+    private float choresStartTime;
     private bool completionDialogueActive;
     private bool isSceneTransitionQueued;
 
@@ -129,7 +131,7 @@ public class A1_livingroom : MonoBehaviour
             dialogueList.Add(new A1LivingRoomDialogueLine("You", "What chores, Nanay?"));
             dialogueList.Add(new A1LivingRoomDialogueLine("Nanay", "Please wash the dishes and sweep the living room.", new List<A1LivingRoomChoiceOption>
             {
-                new A1LivingRoomChoiceOption { choiceText = "Do it", nextDialogueIndex = 8 },
+                new A1LivingRoomChoiceOption { choiceText = "Do it", nextDialogueIndex = 8, points = 1 },
                 new A1LivingRoomChoiceOption { choiceText = "But I'm late", nextDialogueIndex = 6 }
             }));
             dialogueList.Add(new A1LivingRoomDialogueLine("You", "But I’m already late for school!"));
@@ -313,19 +315,30 @@ public class A1_livingroom : MonoBehaviour
         List<A1LivingRoomChoiceOption> choices = dialogueList[currentLineIndex].choices;
         if (choices != null && choices.Count > 0)
         {
+            string question = dialogueList[currentLineIndex].message;
+            string choiceId = $"{SceneManager.GetActiveScene().name}_line{currentLineIndex}";
+
             if (choiceButton != null)
             {
                 if (choiceButtonText != null) choiceButtonText.text = choices[0].choiceText;
-                int firstTargetIndex = choices[0].nextDialogueIndex;
-                choiceButton.onClick.AddListener(() => MakeLivingRoomChoice(firstTargetIndex));
+                A1LivingRoomChoiceOption firstOption = choices[0];
+                choiceButton.onClick.AddListener(() =>
+                {
+                    PlayerDatabase.RecordChoice(choiceId, question, firstOption.choiceText, firstOption.points);
+                    MakeLivingRoomChoice(firstOption.nextDialogueIndex);
+                });
             }
 
             if (choices.Count > 1 && choiceButton2 != null)
             {
                 choiceButton2.gameObject.SetActive(true);
                 if (choiceButton2Text != null) choiceButton2Text.text = choices[1].choiceText;
-                int secondTargetIndex = choices[1].nextDialogueIndex;
-                choiceButton2.onClick.AddListener(() => MakeLivingRoomChoice(secondTargetIndex));
+                A1LivingRoomChoiceOption secondOption = choices[1];
+                choiceButton2.onClick.AddListener(() =>
+                {
+                    PlayerDatabase.RecordChoice(choiceId, question, secondOption.choiceText, secondOption.points);
+                    MakeLivingRoomChoice(secondOption.nextDialogueIndex);
+                });
             }
 
             return;
@@ -353,6 +366,7 @@ public class A1_livingroom : MonoBehaviour
         if (!choresStarted)
         {
             choresStarted = true;
+            choresStartTime = Time.time;
             EnsureKalatProgressText();
             UpdateKalatProgress();
             if (kalatProgressText != null)
@@ -385,7 +399,13 @@ public class A1_livingroom : MonoBehaviour
         UpdateKalatProgress();
 
         if (cleanedKalatItems.Count >= clickableKalatItems.Length)
+        {
+            float secondsTaken = Time.time - choresStartTime;
+            PlayerDatabase.RecordAction("act1_morning_chores",
+                $"Helped Nanay clean the living room ({clickableKalatItems.Length} items in {secondsTaken:0} seconds)",
+                secondsTaken, 1);
             ShowCompletionDialogue();
+        }
     }
 
     private void UpdateKalatProgress()

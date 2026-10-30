@@ -507,10 +507,14 @@ public class A1_school : MonoBehaviour
             choiceButton1.gameObject.SetActive(true);
             if (choiceButton1Text != null) choiceButton1Text.text = "Cut the first subject";
             choiceButton1.onClick.RemoveAllListeners();
-            choiceButton1.onClick.AddListener(() => StartChoiceDialogue(
-                new A1SchoolDialogueLine("You", "Let's go!"),
-                new A1SchoolDialogueLine("Elijah", "You really want to, huh?"),
-                new A1SchoolDialogueLine("Elijah", "I'm just joking! HAHAHA tara na!")));
+            choiceButton1.onClick.AddListener(() =>
+            {
+                PlayerDatabase.RecordChoice("act1_cut_class", "Elijah: Let's cut the first subject!", "Cut the first subject", -1, "cut");
+                StartChoiceDialogue(
+                    new A1SchoolDialogueLine("You", "Let's go!"),
+                    new A1SchoolDialogueLine("Elijah", "You really want to, huh?"),
+                    new A1SchoolDialogueLine("Elijah", "I'm just joking! HAHAHA tara na!"));
+            });
         }
 
         if (choiceButton2 != null)
@@ -521,9 +525,13 @@ public class A1_school : MonoBehaviour
                 : choiceButton2.GetComponentInChildren<TMP_Text>();
             if (secondChoiceText != null) secondChoiceText.text = "No, let's go to class";
             choiceButton2.onClick.RemoveAllListeners();
-            choiceButton2.onClick.AddListener(() => StartChoiceDialogue(
-                new A1SchoolDialogueLine("You", "No, I don't want to."),
-                new A1SchoolDialogueLine("Elijah", "I'm just joking! HAHAHA tara na!")));
+            choiceButton2.onClick.AddListener(() =>
+            {
+                PlayerDatabase.RecordChoice("act1_cut_class", "Elijah: Let's cut the first subject!", "No, let's go to class", 1, "go_to_class");
+                StartChoiceDialogue(
+                    new A1SchoolDialogueLine("You", "No, I don't want to."),
+                    new A1SchoolDialogueLine("Elijah", "I'm just joking! HAHAHA tara na!"));
+            });
         }
     }
 
