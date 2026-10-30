@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 [System.Serializable]
@@ -43,6 +44,9 @@ public class A1_school : MonoBehaviour
 
     [Header("Typewriter Speed Settings")]
     [SerializeField] private float typingSpeed = 0.03f;
+
+    [Header("Scene Transition")]
+    [SerializeField] private string nextSceneName = "A1_Classroom";
 
     [Header("Dialogue Sequence")]
     public List<A1SchoolDialogueLine> dialogueList = new List<A1SchoolDialogueLine>();
@@ -438,7 +442,10 @@ public class A1_school : MonoBehaviour
         if (choiceContainer != null) choiceContainer.SetActive(false);
 
         if (fadeOutScreen == null)
+        {
+            LoadNextScene();
             yield break;
+        }
 
         fadeOutScreen.SetActive(true);
         CanvasGroup canvasGroup = fadeOutScreen.GetComponent<CanvasGroup>();
@@ -478,6 +485,16 @@ public class A1_school : MonoBehaviour
 
         if (canvasGroup != null)
             canvasGroup.alpha = 1f;
+
+        LoadNextScene();
+    }
+
+    private void LoadNextScene()
+    {
+        if (string.IsNullOrEmpty(nextSceneName))
+            nextSceneName = "A1_Classroom";
+
+        SceneManager.LoadScene(nextSceneName);
     }
 
     private void ShowSchoolChoice()

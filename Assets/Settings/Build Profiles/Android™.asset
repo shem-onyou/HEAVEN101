@@ -40,6 +40,9 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/Scenes/A1_School.unity
     m_guid: 02b20d3998b7ae247b1edacad60efec6
+  - m_enabled: 1
+    m_path: Assets/Scenes/A1_Classroom.unity
+    m_guid: 9b0323e1c81561141b54b455854e6cf8
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
