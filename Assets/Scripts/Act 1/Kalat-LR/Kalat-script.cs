@@ -14,10 +14,11 @@ public class ClickableUIItem : MonoBehaviour, IPointerClickHandler
 
     private void OnItemClicked()
     {
+        // The living room controller plays the pop animation and hides the item itself.
         A1_livingroom controller = FindAnyObjectByType<A1_livingroom>();
         if (controller != null)
             controller.RegisterKalatCleaned(this);
-
-        gameObject.SetActive(false);
+        else
+            gameObject.SetActive(false);
     }
 }
