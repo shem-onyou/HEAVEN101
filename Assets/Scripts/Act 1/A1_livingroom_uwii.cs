@@ -53,6 +53,18 @@ public class A1_livingroom_uwii : MonoBehaviour
     [Header("Typewriter Speed Settings")]
     [SerializeField] private float typingSpeed = 0.03f;
 
+    [Header("Sounds (auto-found by object or clip name if empty)")]
+    [Tooltip("Evening house sounds, looped. Found by \"ambient\". Stays silent until it has a clip.")]
+    [SerializeField] private AudioSource ambientAudioSource;
+    [Tooltip("Optional: an AudioSource with the next_click clip.")]
+    [SerializeField] private AudioSource clickAudioSource;
+    [Tooltip("The front door as the player comes home. Found by \"door\".")]
+    [SerializeField] private AudioSource doorAudioSource;
+    [Tooltip("The player going up to the bedroom at the end. Found by \"stair\".")]
+    [SerializeField] private AudioSource stairsAudioSource;
+    [Tooltip("Plays when the Act Results show. Found by \"victory\" or \"bell\".")]
+    [SerializeField] private AudioSource actCompleteAudioSource;
+
     [Header("Scene Transition (leave empty to show the Act Results after fade out)")]
     [SerializeField] private string nextSceneName = "";
 
@@ -84,6 +96,7 @@ public class A1_livingroom_uwii : MonoBehaviour
     private Coroutine jitterCoroutine;
     private RectTransform jitterTarget;
     private Vector2 jitterRestPosition;
+    private float ambientVolume = 1f;
 
     void Start()
     {
@@ -130,7 +143,7 @@ public class A1_livingroom_uwii : MonoBehaviour
         if (choiceContainer != null) choiceContainer.SetActive(false);
         if (fadeOutScreen != null) fadeOutScreen.SetActive(false);
         if (dialogueBox != null) dialogueBox.SetActive(false);
-        if (fadeScreenIn != null) fadeScreenIn.SetActive(true);
+        HoldBlackScreen();
 
         if (nanayImage != null)
         {
@@ -161,6 +174,8 @@ public class A1_livingroom_uwii : MonoBehaviour
             if (canvasObject != null)
                 canvasTransform = canvasObject.transform;
         }
+
+        FindSounds();
 
         if (canvasTransform == null)
             return;
@@ -213,21 +228,146 @@ public class A1_livingroom_uwii : MonoBehaviour
         return null;
     }
 
+    // Matches AudioSources by a word in their object name or their clip name.
+    private void FindSounds()
+    {
+        foreach (AudioSource audioSource in FindObjectsByType<AudioSource>(FindObjectsInactive.Include))
+        {
+            if (ambientAudioSource == null && SoundMatches(audioSource, "ambient"))
+                ambientAudioSource = audioSource;
+            else if (clickAudioSource == null && SoundMatches(audioSource, "click"))
+                clickAudioSource = audioSource;
+            else if (doorAudioSource == null && SoundMatches(audioSource, "door"))
+                doorAudioSource = audioSource;
+            else if (stairsAudioSource == null && SoundMatches(audioSource, "stair"))
+                stairsAudioSource = audioSource;
+            else if (actCompleteAudioSource == null && (SoundMatches(audioSource, "victory") || SoundMatches(audioSource, "bell")))
+                actCompleteAudioSource = audioSource;
+        }
+
+        // Every sound waits for its moment; nothing plays by itself when the scene starts.
+        foreach (AudioSource effect in new[] { clickAudioSource, doorAudioSource, stairsAudioSource, actCompleteAudioSource })
+        {
+            if (effect == null)
+                continue;
+
+            effect.playOnAwake = false;
+            effect.loop = false;
+            effect.Stop();
+        }
+
+        if (ambientAudioSource != null)
+        {
+            ambientVolume = ambientAudioSource.volume;
+            ambientAudioSource.Stop();
+            ambientAudioSource.loop = true;
+        }
+    }
+
+    private static bool SoundMatches(AudioSource audioSource, string keyword)
+    {
+        if (audioSource.gameObject.name.ToLowerInvariant().Contains(keyword))
+            return true;
+
+        return audioSource.clip != null && audioSource.clip.name.ToLowerInvariant().Contains(keyword);
+    }
+
+    private static void PlayEffect(AudioSource effect)
+    {
+        if (effect != null && effect.clip != null)
+            effect.PlayOneShot(effect.clip);
+    }
+
+    // Slides the ambient's volume; starts it if it needs to be heard and stops it at silence.
+    private IEnumerator FadeAmbient(float toVolume, float fadeDuration)
+    {
+        if (ambientAudioSource == null || ambientAudioSource.clip == null)
+            yield break;
+
+        float fromVolume = ambientAudioSource.isPlaying ? ambientAudioSource.volume : 0f;
+        ambientAudioSource.volume = fromVolume;
+        if (!ambientAudioSource.isPlaying && toVolume > 0f)
+            ambientAudioSource.Play();
+
+        float duration = Mathf.Max(fadeDuration, 0.01f);
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            ambientAudioSource.volume = Mathf.Lerp(fromVolume, toVolume, Mathf.Clamp01(elapsed / duration));
+            yield return null;
+        }
+
+        ambientAudioSource.volume = toVolume;
+        if (toVolume <= 0f)
+            ambientAudioSource.Stop();
+    }
+
+    // The front door opens in the dark, then the living room fades in.
     IEnumerator StartCutscene()
     {
-        yield return new WaitForSeconds(3f);
-        if (fadeScreenIn != null) fadeScreenIn.SetActive(false);
+        yield return new WaitForSeconds(0.5f);
 
-        yield return new WaitForSeconds(1f);
+        float doorWait = 0.5f;
+        if (doorAudioSource != null && doorAudioSource.clip != null)
+        {
+            doorAudioSource.Play();
+            doorWait = Mathf.Min(doorAudioSource.clip.length, 1.5f);
+        }
+
+        yield return new WaitForSeconds(doorWait);
+        yield return FadeFromBlack(1.5f);
+        StartCoroutine(FadeAmbient(ambientVolume, 1.5f));
+        yield return new WaitForSeconds(0.5f);
 
         if (playLines.Count > 0)
             StartCoroutine(PlayLine(currentLineIndex));
+    }
+
+    // The FadeIn Animator is turned off so the script decides when the screen clears.
+    private void HoldBlackScreen()
+    {
+        if (fadeScreenIn == null)
+            return;
+
+        fadeScreenIn.SetActive(true);
+
+        Animator fadeAnimator = fadeScreenIn.GetComponent<Animator>();
+        if (fadeAnimator != null)
+            fadeAnimator.enabled = false;
+
+        Image fadeImage = fadeScreenIn.GetComponent<Image>();
+        if (fadeImage != null)
+            fadeImage.color = Color.black;
+    }
+
+    private IEnumerator FadeFromBlack(float fadeDuration)
+    {
+        if (fadeScreenIn == null)
+            yield break;
+
+        Image fadeImage = fadeScreenIn.GetComponent<Image>();
+        if (fadeImage != null)
+        {
+            float duration = Mathf.Max(fadeDuration, 0.01f);
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                fadeImage.color = new Color(0f, 0f, 0f, Mathf.Lerp(1f, 0f, Mathf.SmoothStep(0f, 1f, elapsed / duration)));
+                yield return null;
+            }
+        }
+
+        fadeScreenIn.SetActive(false);
     }
 
     public void NextButton()
     {
         if (isPlayingAction || dialogueFinished)
             return;
+
+        PlayEffect(clickAudioSource);
 
         if (isTyping)
         {
@@ -440,14 +580,22 @@ public class A1_livingroom_uwii : MonoBehaviour
         isTyping = false;
     }
 
+    // The player heads upstairs (footsteps) while the room and its sounds fade away.
     private IEnumerator FadeOutScene()
     {
         StopJitter();
         if (nextButton != null) nextButton.SetActive(false);
         if (dialogueBox != null) dialogueBox.SetActive(false);
 
+        if (stairsAudioSource != null && stairsAudioSource.clip != null)
+            stairsAudioSource.Play();
+        StartCoroutine(FadeAmbient(0f, 1.2f));
+
         if (fadeOutScreen != null)
             yield return FadeBlackScreen(0f, 1f);
+
+        while (stairsAudioSource != null && stairsAudioSource.isPlaying)
+            yield return null;
 
         if (!string.IsNullOrEmpty(nextSceneName))
         {
@@ -462,6 +610,7 @@ public class A1_livingroom_uwii : MonoBehaviour
     private void ShowActResults()
     {
         PlayerDatabase.MarkActCompleted(actNumber);
+        PlayEffect(actCompleteAudioSource);
 
         Transform canvasTransform = fadeOutScreen != null ? fadeOutScreen.transform.parent : null;
         if (canvasTransform == null && dialogueBox != null)

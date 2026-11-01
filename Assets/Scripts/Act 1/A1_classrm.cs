@@ -66,6 +66,16 @@ public class A1_classrm : MonoBehaviour
     public AudioSource sfxSource;
     public AudioClip teacherArrivesClip;
 
+    [Header("Sounds (auto-found by object or clip name if empty)")]
+    [Tooltip("Classroom chatter, looped. Found by \"ambient\". Stays silent until it has a clip.")]
+    [SerializeField] private AudioSource ambientAudioSource;
+    [Tooltip("Optional: an AudioSource with the next_click clip.")]
+    [SerializeField] private AudioSource clickAudioSource;
+    [Tooltip("Optional: rings when Ma'am arrives. Found by \"bell\" or \"teacher\".")]
+    [SerializeField] private AudioSource teacherAudioSource;
+    [Tooltip("How loud the chatter stays once Ma'am is in the room (class is quiet).")]
+    [Range(0f, 1f)] [SerializeField] private float quietClassVolume = 0.3f;
+
     [Header("Text UI References (auto-found by name if empty)")]
     public TMP_Text charNameText;
     public TMP_Text messageInputText;
@@ -93,6 +103,7 @@ public class A1_classrm : MonoBehaviour
     private Coroutine jitterCoroutine;
     private RectTransform jitterTarget;
     private Vector2 jitterRestPosition;
+    private float ambientVolume = 1f;
 
     void Start()
     {
@@ -134,7 +145,7 @@ public class A1_classrm : MonoBehaviour
         if (choiceContainer != null) choiceContainer.SetActive(false);
         if (fadeOutScreen != null) fadeOutScreen.SetActive(false);
         if (dialogueBox != null) dialogueBox.SetActive(false);
-        if (fadeScreenIn != null) fadeScreenIn.SetActive(true);
+        HoldBlackScreen();
 
         if (classmate1Image != null)
         {
@@ -172,6 +183,8 @@ public class A1_classrm : MonoBehaviour
             if (canvasObject != null)
                 canvasTransform = canvasObject.transform;
         }
+
+        FindSounds();
 
         if (canvasTransform == null)
             return;
@@ -230,21 +243,134 @@ public class A1_classrm : MonoBehaviour
         return null;
     }
 
+    // Matches AudioSources by a word in their object name or their clip name.
+    private void FindSounds()
+    {
+        foreach (AudioSource audioSource in FindObjectsByType<AudioSource>(FindObjectsInactive.Include))
+        {
+            if (audioSource == sfxSource)
+                continue;
+
+            if (ambientAudioSource == null && SoundMatches(audioSource, "ambient"))
+                ambientAudioSource = audioSource;
+            else if (clickAudioSource == null && SoundMatches(audioSource, "click"))
+                clickAudioSource = audioSource;
+            else if (teacherAudioSource == null && (SoundMatches(audioSource, "bell") || SoundMatches(audioSource, "teacher")))
+                teacherAudioSource = audioSource;
+        }
+
+        foreach (AudioSource effect in new[] { clickAudioSource, teacherAudioSource })
+        {
+            if (effect == null)
+                continue;
+
+            effect.playOnAwake = false;
+            effect.loop = false;
+            effect.Stop();
+        }
+
+        if (ambientAudioSource != null)
+        {
+            ambientVolume = ambientAudioSource.volume;
+            ambientAudioSource.Stop();
+            ambientAudioSource.loop = true;
+        }
+    }
+
+    private static bool SoundMatches(AudioSource audioSource, string keyword)
+    {
+        if (audioSource.gameObject.name.ToLowerInvariant().Contains(keyword))
+            return true;
+
+        return audioSource.clip != null && audioSource.clip.name.ToLowerInvariant().Contains(keyword);
+    }
+
+    private static void PlayEffect(AudioSource effect)
+    {
+        if (effect != null && effect.clip != null)
+            effect.PlayOneShot(effect.clip);
+    }
+
+    // Slides the ambient's volume; starts it if it needs to be heard and stops it at silence.
+    private IEnumerator FadeAmbient(float toVolume, float fadeDuration)
+    {
+        if (ambientAudioSource == null || ambientAudioSource.clip == null)
+            yield break;
+
+        float fromVolume = ambientAudioSource.isPlaying ? ambientAudioSource.volume : 0f;
+        ambientAudioSource.volume = fromVolume;
+        if (!ambientAudioSource.isPlaying && toVolume > 0f)
+            ambientAudioSource.Play();
+
+        float duration = Mathf.Max(fadeDuration, 0.01f);
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            ambientAudioSource.volume = Mathf.Lerp(fromVolume, toVolume, Mathf.Clamp01(elapsed / duration));
+            yield return null;
+        }
+
+        ambientAudioSource.volume = toVolume;
+        if (toVolume <= 0f)
+            ambientAudioSource.Stop();
+    }
+
     IEnumerator StartCutscene()
     {
-        yield return new WaitForSeconds(3f);
-        if (fadeScreenIn != null) fadeScreenIn.SetActive(false);
-
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
+        yield return FadeFromBlack(1.5f);
+        StartCoroutine(FadeAmbient(ambientVolume, 1.5f));
+        yield return new WaitForSeconds(0.5f);
 
         if (dialogueList.Count > 0)
             StartCoroutine(PlayLine(currentLineIndex));
+    }
+
+    // The FadeIn Animator is turned off so the script decides when the screen clears.
+    private void HoldBlackScreen()
+    {
+        if (fadeScreenIn == null)
+            return;
+
+        fadeScreenIn.SetActive(true);
+
+        Animator fadeAnimator = fadeScreenIn.GetComponent<Animator>();
+        if (fadeAnimator != null)
+            fadeAnimator.enabled = false;
+
+        Image fadeImage = fadeScreenIn.GetComponent<Image>();
+        if (fadeImage != null)
+            fadeImage.color = Color.black;
+    }
+
+    private IEnumerator FadeFromBlack(float fadeDuration)
+    {
+        if (fadeScreenIn == null)
+            yield break;
+
+        Image fadeImage = fadeScreenIn.GetComponent<Image>();
+        if (fadeImage != null)
+        {
+            float duration = Mathf.Max(fadeDuration, 0.01f);
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                fadeImage.color = new Color(0f, 0f, 0f, Mathf.Lerp(1f, 0f, Mathf.SmoothStep(0f, 1f, elapsed / duration)));
+                yield return null;
+            }
+        }
+
+        fadeScreenIn.SetActive(false);
     }
 
     public void NextButton()
     {
         if (isPlayingAction || dialogueFinished)
             return;
+
+        PlayEffect(clickAudioSource);
 
         if (isTyping)
         {
@@ -284,17 +410,20 @@ public class A1_classrm : MonoBehaviour
         switch (action)
         {
             case A1ClassroomAction.Classmate1Enters:
-                yield return WalkIn(classmate1Image, classmate1SpotPosition, -1f);
+                yield return WalkIn(classmate1Image, classmate1SpotPosition, SideOf(classmate1SpotPosition));
                 break;
 
             case A1ClassroomAction.Classmate2Enters:
-                yield return WalkIn(classmate2Image, classmate2SpotPosition, 1f);
+                yield return WalkIn(classmate2Image, classmate2SpotPosition, SideOf(classmate2SpotPosition));
                 break;
 
             case A1ClassroomAction.TeacherArrives:
+                // The bell rings and the chatter dies down as Ma'am walks in.
                 if (dialogueBox != null) dialogueBox.SetActive(false);
                 if (sfxSource != null && teacherArrivesClip != null)
                     sfxSource.PlayOneShot(teacherArrivesClip);
+                PlayEffect(teacherAudioSource);
+                StartCoroutine(FadeAmbient(ambientVolume * quietClassVolume, 1f));
                 yield return new WaitForSeconds(1f);
                 break;
 
@@ -325,12 +454,15 @@ public class A1_classrm : MonoBehaviour
     {
         if (dialogueBox != null) dialogueBox.SetActive(false);
 
-        // Cut to black instantly (no fade) before the time skip text shows up.
+        // Cut to black instantly (no fade) before the time skip text shows up; the room goes silent too.
         if (fadeOutScreen != null)
         {
             PrepareFadeScreen(out CanvasGroup canvasGroup, out Image fadeImage);
             SetFadeAlpha(canvasGroup, fadeImage, 1f);
         }
+
+        if (ambientAudioSource != null)
+            ambientAudioSource.Stop();
 
         yield return new WaitForSeconds(0.5f);
 
@@ -350,6 +482,9 @@ public class A1_classrm : MonoBehaviour
             skipText.gameObject.SetActive(false);
         }
 
+        // Class is over, so the chatter comes back at full volume.
+        StartCoroutine(FadeAmbient(ambientVolume, 1f));
+
         if (fadeOutScreen != null)
         {
             yield return FadeBlackScreen(1f, 0f);
@@ -357,6 +492,13 @@ public class A1_classrm : MonoBehaviour
         }
 
         yield return new WaitForSeconds(0.5f);
+    }
+
+    // A classmate standing on the left side of the room walks in from the left edge, and vice versa,
+    // so the two never cross the whole screen.
+    private static float SideOf(Vector2 spotPosition)
+    {
+        return spotPosition.x < 0f ? -1f : 1f;
     }
 
     private void ResetClassmateAtSpot(Image classmateImage, Vector2 spotPosition, Color baseColor)
@@ -549,9 +691,30 @@ public class A1_classrm : MonoBehaviour
 
         StopJitter();
         if (classmate1Speaking)
+        {
+            BringToFront(classmate1Image);
             StartJitter(classmate1Image);
+        }
         else if (classmate2Speaking)
+        {
+            BringToFront(classmate2Image);
             StartJitter(classmate2Image);
+        }
+    }
+
+    // Moves the speaker in front of the other classmate while keeping both behind the dialogue box.
+    private void BringToFront(Image speakerImage)
+    {
+        if (speakerImage == null)
+            return;
+
+        Image otherImage = speakerImage == classmate1Image ? classmate2Image : classmate1Image;
+        Transform speakerTransform = speakerImage.transform;
+        if (otherImage == null || otherImage.transform.parent != speakerTransform.parent)
+            return;
+
+        int frontIndex = Mathf.Max(speakerTransform.GetSiblingIndex(), otherImage.transform.GetSiblingIndex());
+        speakerTransform.SetSiblingIndex(frontIndex);
     }
 
     private Color Darken(Color baseColor)
@@ -665,8 +828,10 @@ public class A1_classrm : MonoBehaviour
 
     private IEnumerator FadeOutScene()
     {
+        StopJitter();
         if (nextButton != null) nextButton.SetActive(false);
         if (dialogueBox != null) dialogueBox.SetActive(false);
+        StartCoroutine(FadeAmbient(0f, 1f));
 
         if (fadeOutScreen != null)
             yield return FadeBlackScreen(0f, 1f);

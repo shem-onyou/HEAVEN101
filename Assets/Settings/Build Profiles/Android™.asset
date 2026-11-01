@@ -29,20 +29,26 @@ MonoBehaviour:
     m_path: Assets/Scenes/Acts.unity
     m_guid: f70ad8c0e9796ce4c8d793de82298df7
   - m_enabled: 1
-    m_path: Assets/Scenes/Act One.unity
+    m_path: Assets/Scenes/Act1_Scenes/Act One.unity
     m_guid: 3fbe78103fb1b7044be1ba4647de5533
   - m_enabled: 1
-    m_path: Assets/Scenes/A1_Bedroom.unity
+    m_path: Assets/Scenes/Act1_Scenes/A1_Bedroom.unity
     m_guid: 2acbee4fc33bf104d906ddc44d02d19a
   - m_enabled: 1
-    m_path: Assets/Scenes/A1_LivingRoom.unity
+    m_path: Assets/Scenes/Act1_Scenes/A1_LivingRoom.unity
     m_guid: 8070b592ec964c34f80eab81d409b7fc
   - m_enabled: 1
-    m_path: Assets/Scenes/A1_School.unity
+    m_path: Assets/Scenes/Act1_Scenes/A1_School.unity
     m_guid: 02b20d3998b7ae247b1edacad60efec6
   - m_enabled: 1
-    m_path: Assets/Scenes/A1_Classroom.unity
+    m_path: Assets/Scenes/Act1_Scenes/A1_Classroom.unity
     m_guid: 9b0323e1c81561141b54b455854e6cf8
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act1_Scenes/A1_School_Uwian.unity
+    m_guid: db13216ad5dc0f944b1ab1668eb6f155
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act1_Scenes/A1_LR_umuwi.unity
+    m_guid: 09cbd071965a6304aad08ec31f20b8be
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:

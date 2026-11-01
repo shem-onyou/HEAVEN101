@@ -74,6 +74,17 @@ public class A1_school_uwi : MonoBehaviour
     [SerializeField] private float tintDuration = 0.15f;
     [SerializeField] private float jitterDuration = 0.3f;
     [SerializeField] private float jitterStrength = 6f;
+    [Tooltip("The pulubi trembles weakly instead of hopping.")]
+    [SerializeField] private float pulubiTrembleStrength = 2f;
+    [SerializeField] private float pulubiTrembleDuration = 0.8f;
+
+    [Header("Sounds (auto-found by object or clip name if empty)")]
+    [Tooltip("Afternoon street/school sounds, looped. Found by \"ambient\". Stays silent until it has a clip.")]
+    [SerializeField] private AudioSource ambientAudioSource;
+    [Tooltip("Optional: an AudioSource with the next_click clip.")]
+    [SerializeField] private AudioSource clickAudioSource;
+    [Tooltip("How loud the ambient stays while the pulubi is talking, so the moment feels quieter.")]
+    [Range(0f, 1f)] [SerializeField] private float pulubiMomentVolume = 0.4f;
 
     [Header("Text UI References (auto-found by name if empty)")]
     public TMP_Text charNameText;
@@ -82,8 +93,10 @@ public class A1_school_uwi : MonoBehaviour
     [Header("Typewriter Speed Settings")]
     [SerializeField] private float typingSpeed = 0.03f;
 
-    [Header("Scene Transition (leave empty to stay on black after fade out)")]
-    [SerializeField] private string nextSceneName = "";
+    // Renamed from nextSceneName: the scene still had "A1_LivingRoom" (the morning room) saved there,
+    // so a new field drops that old value and points to the after-school living room instead.
+    [Header("Scene Transition")]
+    [SerializeField] private string homeSceneName = "A1_LR_umuwi";
 
     [Header("Dialogue Sequence")]
     public List<A1UwianDialogueLine> introLines = new List<A1UwianDialogueLine>();
@@ -115,6 +128,7 @@ public class A1_school_uwi : MonoBehaviour
     private Coroutine jitterCoroutine;
     private RectTransform jitterTarget;
     private Vector2 jitterRestPosition;
+    private float ambientVolume = 1f;
 
     void Start()
     {
@@ -167,10 +181,13 @@ public class A1_school_uwi : MonoBehaviour
         if (spreadClassmates)
             SpreadClassmates();
 
+        KeepOnScreen(classmate1, classmate2);
+        KeepOnScreen(pulubi);
+
         if (choiceContainer != null) choiceContainer.SetActive(false);
         if (fadeOutScreen != null) fadeOutScreen.SetActive(false);
         if (dialogueBox != null) dialogueBox.SetActive(false);
-        if (fadeScreenIn != null) fadeScreenIn.SetActive(true);
+        HoldBlackScreen();
 
         if (nextButton != null)
         {
@@ -216,6 +233,43 @@ public class A1_school_uwi : MonoBehaviour
         classmate2.spotPosition = middle + new Vector2(halfGap, 0f);
     }
 
+    // Slides the given characters together (keeping their gap) until none of them sticks out
+    // past the left or right edge of the screen.
+    private static void KeepOnScreen(params UwianCharacter[] group)
+    {
+        float overRight = 0f;
+        float overLeft = 0f;
+
+        foreach (UwianCharacter character in group)
+        {
+            if (character.image == null)
+                continue;
+
+            RectTransform imageTransform = character.image.rectTransform;
+            RectTransform parentTransform = imageTransform.parent as RectTransform;
+            if (parentTransform == null)
+                continue;
+
+            float halfImage = imageTransform.rect.width * Mathf.Abs(imageTransform.localScale.x) * 0.5f;
+            float halfScreen = parentTransform.rect.width * 0.5f;
+            overRight = Mathf.Max(overRight, character.spotPosition.x + halfImage - halfScreen);
+            overLeft = Mathf.Max(overLeft, -halfScreen - (character.spotPosition.x - halfImage));
+        }
+
+        float shift = overRight > 0f ? -overRight : overLeft;
+        if (Mathf.Approximately(shift, 0f))
+            return;
+
+        foreach (UwianCharacter character in group)
+            character.spotPosition += new Vector2(shift, 0f);
+    }
+
+    // Characters on the left half of the screen come and go through the left edge, and vice versa.
+    private static float SideOf(UwianCharacter character)
+    {
+        return character.spotPosition.x < 0f ? -1f : 1f;
+    }
+
     private void FindSceneReferences()
     {
         Transform canvasTransform = dialogueBox != null ? dialogueBox.transform.parent : null;
@@ -225,6 +279,8 @@ public class A1_school_uwi : MonoBehaviour
             if (canvasObject != null)
                 canvasTransform = canvasObject.transform;
         }
+
+        FindSounds();
 
         if (canvasTransform == null)
             return;
@@ -302,21 +358,126 @@ public class A1_school_uwi : MonoBehaviour
         return null;
     }
 
+    // Matches AudioSources by a word in their object name or their clip name.
+    private void FindSounds()
+    {
+        foreach (AudioSource audioSource in FindObjectsByType<AudioSource>(FindObjectsInactive.Include))
+        {
+            if (ambientAudioSource == null && SoundMatches(audioSource, "ambient"))
+                ambientAudioSource = audioSource;
+            else if (clickAudioSource == null && SoundMatches(audioSource, "click"))
+                clickAudioSource = audioSource;
+        }
+
+        if (clickAudioSource != null)
+        {
+            clickAudioSource.playOnAwake = false;
+            clickAudioSource.loop = false;
+            clickAudioSource.Stop();
+        }
+
+        if (ambientAudioSource != null)
+        {
+            ambientVolume = ambientAudioSource.volume;
+            ambientAudioSource.Stop();
+            ambientAudioSource.loop = true;
+        }
+    }
+
+    private static bool SoundMatches(AudioSource audioSource, string keyword)
+    {
+        if (audioSource.gameObject.name.ToLowerInvariant().Contains(keyword))
+            return true;
+
+        return audioSource.clip != null && audioSource.clip.name.ToLowerInvariant().Contains(keyword);
+    }
+
+    private void PlayClick()
+    {
+        if (clickAudioSource != null && clickAudioSource.clip != null)
+            clickAudioSource.PlayOneShot(clickAudioSource.clip);
+    }
+
+    // Slides the ambient's volume; starts it if it needs to be heard and stops it at silence.
+    private IEnumerator FadeAmbient(float toVolume, float fadeDuration)
+    {
+        if (ambientAudioSource == null || ambientAudioSource.clip == null)
+            yield break;
+
+        float fromVolume = ambientAudioSource.isPlaying ? ambientAudioSource.volume : 0f;
+        ambientAudioSource.volume = fromVolume;
+        if (!ambientAudioSource.isPlaying && toVolume > 0f)
+            ambientAudioSource.Play();
+
+        float duration = Mathf.Max(fadeDuration, 0.01f);
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            ambientAudioSource.volume = Mathf.Lerp(fromVolume, toVolume, Mathf.Clamp01(elapsed / duration));
+            yield return null;
+        }
+
+        ambientAudioSource.volume = toVolume;
+        if (toVolume <= 0f)
+            ambientAudioSource.Stop();
+    }
+
     IEnumerator StartCutscene()
     {
-        yield return new WaitForSeconds(3f);
-        if (fadeScreenIn != null) fadeScreenIn.SetActive(false);
-
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
+        yield return FadeFromBlack(1.5f);
+        StartCoroutine(FadeAmbient(ambientVolume, 1.5f));
+        yield return new WaitForSeconds(0.5f);
 
         if (currentLines.Count > 0)
             StartCoroutine(PlayLine(currentLineIndex));
+    }
+
+    // The FadeIn Animator is turned off so the script decides when the screen clears.
+    private void HoldBlackScreen()
+    {
+        if (fadeScreenIn == null)
+            return;
+
+        fadeScreenIn.SetActive(true);
+
+        Animator fadeAnimator = fadeScreenIn.GetComponent<Animator>();
+        if (fadeAnimator != null)
+            fadeAnimator.enabled = false;
+
+        Image fadeImage = fadeScreenIn.GetComponent<Image>();
+        if (fadeImage != null)
+            fadeImage.color = Color.black;
+    }
+
+    private IEnumerator FadeFromBlack(float fadeDuration)
+    {
+        if (fadeScreenIn == null)
+            yield break;
+
+        Image fadeImage = fadeScreenIn.GetComponent<Image>();
+        if (fadeImage != null)
+        {
+            float duration = Mathf.Max(fadeDuration, 0.01f);
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                fadeImage.color = new Color(0f, 0f, 0f, Mathf.Lerp(1f, 0f, Mathf.SmoothStep(0f, 1f, elapsed / duration)));
+                yield return null;
+            }
+        }
+
+        fadeScreenIn.SetActive(false);
     }
 
     public void NextButton()
     {
         if (isPlayingAction || waitingForChoice || dialogueFinished)
             return;
+
+        PlayClick();
 
         if (isTyping)
         {
@@ -352,7 +513,11 @@ public class A1_school_uwi : MonoBehaviour
             choiceButton1.gameObject.SetActive(true);
             if (choiceButton1Text != null) choiceButton1Text.text = giveChoiceText;
             choiceButton1.onClick.RemoveAllListeners();
-            choiceButton1.onClick.AddListener(() => MakeChoice(true));
+            choiceButton1.onClick.AddListener(() =>
+            {
+                PlayClick();
+                MakeChoice(true);
+            });
         }
 
         if (choiceButton2 != null)
@@ -360,7 +525,11 @@ public class A1_school_uwi : MonoBehaviour
             choiceButton2.gameObject.SetActive(true);
             if (choiceButton2Text != null) choiceButton2Text.text = refuseChoiceText;
             choiceButton2.onClick.RemoveAllListeners();
-            choiceButton2.onClick.AddListener(() => MakeChoice(false));
+            choiceButton2.onClick.AddListener(() =>
+            {
+                PlayClick();
+                MakeChoice(false);
+            });
         }
     }
 
@@ -412,11 +581,11 @@ public class A1_school_uwi : MonoBehaviour
         switch (action)
         {
             case A1UwianAction.Classmate1Enters:
-                yield return WalkIn(classmate1, -1f, walkInDuration);
+                yield return WalkIn(classmate1, SideOf(classmate1), walkInDuration);
                 break;
 
             case A1UwianAction.Classmate2Enters:
-                yield return WalkIn(classmate2, 1f, walkInDuration);
+                yield return WalkIn(classmate2, SideOf(classmate2), walkInDuration);
                 break;
 
             case A1UwianAction.Playful:
@@ -424,11 +593,14 @@ public class A1_school_uwi : MonoBehaviour
                 break;
 
             case A1UwianAction.PulubiApproaches:
-                yield return WalkIn(pulubi, 1f, pulubiWalkDuration);
+                // The street noise drops so the pulubi's quiet voice stands out.
+                StartCoroutine(FadeAmbient(ambientVolume * pulubiMomentVolume, 1f));
+                yield return WalkIn(pulubi, SideOf(pulubi), pulubiWalkDuration);
                 break;
 
             case A1UwianAction.PulubiLeaves:
-                yield return RunOffScreen(pulubi, pulubiWalkDuration);
+                yield return RunOffScreen(pulubi, pulubiWalkDuration, SideOf(pulubi));
+                StartCoroutine(FadeAmbient(ambientVolume, 1.5f));
                 break;
 
             case A1UwianAction.GiveMoney:
@@ -459,7 +631,8 @@ public class A1_school_uwi : MonoBehaviour
         yield return MoveImage(imageTransform, startPosition, character.spotPosition, duration);
     }
 
-    private IEnumerator RunOffScreen(UwianCharacter character, float duration)
+    // side: -1 leaves through the left edge, 1 through the right edge (home is to the right).
+    private IEnumerator RunOffScreen(UwianCharacter character, float duration, float side = 1f)
     {
         if (character.image == null || !character.image.gameObject.activeSelf)
             yield break;
@@ -470,7 +643,7 @@ public class A1_school_uwi : MonoBehaviour
             yield break;
 
         Vector2 startPosition = imageTransform.anchoredPosition;
-        Vector2 exitPosition = startPosition + new Vector2(parentTransform.rect.width, 0f);
+        Vector2 exitPosition = startPosition + new Vector2(side * parentTransform.rect.width, 0f);
 
         yield return MoveImage(imageTransform, startPosition, exitPosition, duration);
         character.image.gameObject.SetActive(false);
@@ -617,7 +790,11 @@ public class A1_school_uwi : MonoBehaviour
             if (isSpeaking)
             {
                 BringToFront(character.image);
-                StartJitter(character.image);
+                bool trembling = character == pulubi;
+                StartJitter(character.image,
+                    trembling ? pulubiTrembleStrength : jitterStrength,
+                    trembling ? pulubiTrembleDuration : jitterDuration,
+                    !trembling);
             }
         }
     }
@@ -658,14 +835,14 @@ public class A1_school_uwi : MonoBehaviour
         characterImage.color = targetColor;
     }
 
-    private void StartJitter(Image characterImage)
+    private void StartJitter(Image characterImage, float strength, float duration, bool hop)
     {
         if (characterImage == null || !characterImage.gameObject.activeInHierarchy)
             return;
 
         jitterTarget = characterImage.rectTransform;
         jitterRestPosition = jitterTarget.anchoredPosition;
-        jitterCoroutine = StartCoroutine(Jitter());
+        jitterCoroutine = StartCoroutine(Jitter(strength, duration, hop));
     }
 
     private void StopJitter()
@@ -683,17 +860,17 @@ public class A1_school_uwi : MonoBehaviour
         }
     }
 
-    // Small hop with a side-to-side wiggle that fades out, so the speaker looks alive.
-    private IEnumerator Jitter()
+    // A small hop with a side wiggle (lively), or just a faint side tremble (weak and hungry).
+    private IEnumerator Jitter(float strength, float jitterTime, bool hop)
     {
-        float duration = Mathf.Max(jitterDuration, 0.01f);
+        float duration = Mathf.Max(jitterTime, 0.01f);
         float elapsed = 0f;
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float progress = Mathf.Clamp01(elapsed / duration);
-            float wiggleX = Mathf.Sin(elapsed * 60f) * jitterStrength * (1f - progress);
-            float hopY = Mathf.Sin(progress * Mathf.PI) * jitterStrength;
+            float wiggleX = Mathf.Sin(elapsed * 60f) * strength * (1f - progress);
+            float hopY = hop ? Mathf.Sin(progress * Mathf.PI) * strength : 0f;
             jitterTarget.anchoredPosition = jitterRestPosition + new Vector2(wiggleX, hopY);
             yield return null;
         }
@@ -732,8 +909,10 @@ public class A1_school_uwi : MonoBehaviour
 
     private IEnumerator FadeOutScene()
     {
+        StopJitter();
         if (nextButton != null) nextButton.SetActive(false);
         if (dialogueBox != null) dialogueBox.SetActive(false);
+        StartCoroutine(FadeAmbient(0f, 1f));
 
         if (fadeOutScreen != null)
             yield return FadeBlackScreen(0f, 1f);
@@ -793,7 +972,9 @@ public class A1_school_uwi : MonoBehaviour
 
     private void LoadNextScene()
     {
-        if (!string.IsNullOrEmpty(nextSceneName))
-            SceneManager.LoadScene(nextSceneName);
+        if (string.IsNullOrEmpty(homeSceneName))
+            homeSceneName = "A1_LR_umuwi";
+
+        SceneManager.LoadScene(homeSceneName);
     }
 }
