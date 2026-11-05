@@ -49,6 +49,9 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/Scenes/Act1_Scenes/A1_LR_umuwi.unity
     m_guid: 09cbd071965a6304aad08ec31f20b8be
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act1_Scenes/A1_BR_lastscene.unity
+    m_guid: ced536065de5fd6489c11fc4e4280a89
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:

@@ -62,19 +62,11 @@ public class A1_livingroom_uwii : MonoBehaviour
     [SerializeField] private AudioSource doorAudioSource;
     [Tooltip("The player going up to the bedroom at the end. Found by \"stair\".")]
     [SerializeField] private AudioSource stairsAudioSource;
-    [Tooltip("Plays when the Act Results show. Found by \"victory\" or \"bell\".")]
-    [SerializeField] private AudioSource actCompleteAudioSource;
 
-    [Header("Scene Transition (leave empty to show the Act Results after fade out)")]
-    [SerializeField] private string nextSceneName = "";
-
-    [Header("Act Results (end of Act 1)")]
-    [Tooltip("Marked as finished when the results show, which unlocks the next act on the Acts screen.")]
-    [SerializeField] private int actNumber = 1;
-    [SerializeField] private string actResultsTitle = "Act 1 Complete";
-    [SerializeField] private string mainMenuSceneName = "Main Menu";
-    [Tooltip("Scene of the next act. While empty, the Next Act button goes to the Acts screen.")]
-    [SerializeField] private string nextActSceneName = "";
+    // A new field (not the old nextSceneName, which is saved empty in the scene) so it points
+    // to the night bedroom by default. The Act 1 results now show at the end of that scene.
+    [Header("Scene Transition")]
+    [SerializeField] private string bedroomSceneName = "A1_BR_lastscene";
 
     [Header("Dialogue Sequence")]
     public List<A1UmuwiDialogueLine> introLines = new List<A1UmuwiDialogueLine>();
@@ -241,12 +233,10 @@ public class A1_livingroom_uwii : MonoBehaviour
                 doorAudioSource = audioSource;
             else if (stairsAudioSource == null && SoundMatches(audioSource, "stair"))
                 stairsAudioSource = audioSource;
-            else if (actCompleteAudioSource == null && (SoundMatches(audioSource, "victory") || SoundMatches(audioSource, "bell")))
-                actCompleteAudioSource = audioSource;
         }
 
         // Every sound waits for its moment; nothing plays by itself when the scene starts.
-        foreach (AudioSource effect in new[] { clickAudioSource, doorAudioSource, stairsAudioSource, actCompleteAudioSource })
+        foreach (AudioSource effect in new[] { clickAudioSource, doorAudioSource, stairsAudioSource })
         {
             if (effect == null)
                 continue;
@@ -597,29 +587,12 @@ public class A1_livingroom_uwii : MonoBehaviour
         while (stairsAudioSource != null && stairsAudioSource.isPlaying)
             yield return null;
 
-        if (!string.IsNullOrEmpty(nextSceneName))
-        {
-            SceneManager.LoadScene(nextSceneName);
-            yield break;
-        }
-
         yield return new WaitForSeconds(0.5f);
-        ShowActResults();
-    }
 
-    private void ShowActResults()
-    {
-        PlayerDatabase.MarkActCompleted(actNumber);
-        PlayEffect(actCompleteAudioSource);
+        if (string.IsNullOrEmpty(bedroomSceneName))
+            bedroomSceneName = "A1_BR_lastscene";
 
-        Transform canvasTransform = fadeOutScreen != null ? fadeOutScreen.transform.parent : null;
-        if (canvasTransform == null && dialogueBox != null)
-            canvasTransform = dialogueBox.transform.parent;
-        if (canvasTransform == null)
-            return;
-
-        TMP_FontAsset font = messageInputText != null ? messageInputText.font : null;
-        ActResultsScreen.Show(canvasTransform, choiceContainer, font, actResultsTitle, mainMenuSceneName, nextActSceneName);
+        SceneManager.LoadScene(bedroomSceneName);
     }
 
     // The FadeOut object may carry an Animator (copied from FadeIn) that would fight
