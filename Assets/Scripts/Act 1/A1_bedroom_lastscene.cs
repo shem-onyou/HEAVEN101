@@ -58,8 +58,8 @@ public class A1_bedroom_lastscene : MonoBehaviour
     [SerializeField] private int actNumber = 1;
     [SerializeField] private string actResultsTitle = "Act 1 Complete";
     [SerializeField] private string mainMenuSceneName = "Main Menu";
-    [Tooltip("Scene of the next act. While empty, the Next Act button goes to the Acts screen.")]
-    [SerializeField] private string nextActSceneName = "";
+    [Tooltip("First scene of the next act. Empty means \"A2_Broom\".")]
+    [SerializeField] private string nextActSceneName = "A2_Broom";
 
     private readonly List<string> playLines = new List<string>();
     private int currentLineIndex = 0;
@@ -392,6 +392,10 @@ public class A1_bedroom_lastscene : MonoBehaviour
             canvasTransform = dialogueBox.transform.parent;
         if (canvasTransform == null)
             return;
+
+        // The scene was saved before Act 2 existed, so an empty value means the default.
+        if (string.IsNullOrEmpty(nextActSceneName))
+            nextActSceneName = "A2_Broom";
 
         TMP_FontAsset font = messageInputText != null ? messageInputText.font : null;
         ActResultsScreen.Show(canvasTransform, choiceContainer, font, actResultsTitle, mainMenuSceneName, nextActSceneName);
