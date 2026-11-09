@@ -14,7 +14,7 @@ public class ClickableUIItem : MonoBehaviour, IPointerClickHandler
 
     private void OnItemClicked()
     {
-        // The living room controller (Act 1 or Act 2) plays the pop animation and hides the item itself.
+        // The living room controller (Act 1, 2 or 3) plays the pop animation and hides the item itself.
         A1_livingroom act1Controller = FindAnyObjectByType<A1_livingroom>();
         if (act1Controller != null)
         {
@@ -26,6 +26,13 @@ public class ClickableUIItem : MonoBehaviour, IPointerClickHandler
         if (act2Controller != null)
         {
             act2Controller.RegisterKalatCleaned(this);
+            return;
+        }
+
+        A3_Lroom_control act3Controller = FindAnyObjectByType<A3_Lroom_control>();
+        if (act3Controller != null)
+        {
+            act3Controller.RegisterKalatCleaned(this);
             return;
         }
 

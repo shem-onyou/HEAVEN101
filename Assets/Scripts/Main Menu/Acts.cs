@@ -17,14 +17,16 @@ public class Acts : MonoBehaviour
     [SerializeField] private string act1SceneName = "Act One";
     [Tooltip("First scene of Act 2. Empty means \"A2_Broom\".")]
     [SerializeField] private string act2SceneName = "A2_Broom";
-    [Tooltip("Leave empty until Act 3 exists; the button stays locked while empty.")]
-    [SerializeField] private string act3SceneName = "";
+    [Tooltip("First scene of Act 3. Empty means \"A3_Broom\".")]
+    [SerializeField] private string act3SceneName = "A3_Broom";
 
     void Start()
     {
         // The Acts scene was saved while Act 2 had no scene yet, so an empty value means the default.
         if (string.IsNullOrEmpty(act2SceneName))
             act2SceneName = "A2_Broom";
+        if (string.IsNullOrEmpty(act3SceneName))
+            act3SceneName = "A3_Broom";
 
         FindButtons();
 

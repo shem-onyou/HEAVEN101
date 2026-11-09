@@ -268,12 +268,48 @@ public static class PlayerDatabase
             case "act2_pulubi_medicine": return good ? "Gave your pamasahe for medicine" : "Kept your pamasahe";
             case "act2_honest_nanay": return good ? "Told Nanay the truth" : "Lied to Nanay";
             case "act2_promise_nanay": return good ? "Kept your promise to Nanay" : "Broke your promise to Nanay";
+
+            case "act3_morning_chores": return "Cleaned the whole house";
+            case "act3_help_classmate": return good ? "Carried your classmate's project" : "Rested for a while";
+            case "act3_care_nanay": return "Took care of Nanay all night";
         }
 
         if (string.IsNullOrEmpty(fallback))
             return id;
 
         return fallback.Length > 36 ? fallback.Substring(0, 33) + "..." : fallback;
+    }
+
+    // The player's own good deeds from every act, newest first, written as something they would say
+    // in a prayer: "Lord... I helped Nanay." Used by the Act 3 prayer.
+    public static List<string> GetGoodDeedPrayers()
+    {
+        List<(string time, string label)> deeds = new List<(string, string)>();
+        foreach (PlayerChoiceRecord choice in Data.choices)
+            if (choice.points > 0) deeds.Add((choice.recordedAt, ShortLabel(choice.choiceId, choice.points, choice.answerText)));
+        foreach (PlayerActionRecord action in Data.actions)
+            if (action.points > 0) deeds.Add((action.recordedAt, ShortLabel(action.actionId, action.points, action.description)));
+
+        deeds.Sort((a, b) => string.CompareOrdinal(b.time, a.time));
+
+        List<string> prayers = new List<string>();
+        foreach (var deed in deeds)
+        {
+            string prayer = $"Lord... I {ToFirstPerson(deed.label)}.";
+            if (!prayers.Contains(prayer))
+                prayers.Add(prayer);
+        }
+
+        return prayers;
+    }
+
+    // "Gave your pamasahe" -> "gave my pamasahe", "Admitted you weren't sure" -> "admitted I wasn't sure".
+    private static string ToFirstPerson(string label)
+    {
+        string text = " " + label + " ";
+        text = text.Replace(" your ", " my ").Replace(" you weren't ", " I wasn't ").Replace(" you ", " I ");
+        text = text.Trim();
+        return text.Length > 0 ? char.ToLowerInvariant(text[0]) + text.Substring(1) : text;
     }
 
     // Uses TMP rich text: green for good points, red for bad ones.

@@ -106,8 +106,8 @@ public class A2_Broom_uwian : MonoBehaviour
     [SerializeField] private int actNumber = 2;
     [SerializeField] private string actResultsTitle = "Act 2 Complete";
     [SerializeField] private string mainMenuSceneName = "Main Menu";
-    [Tooltip("Empty = the Acts screen, until Act 3 exists.")]
-    [SerializeField] private string nextActSceneName = "";
+    [Tooltip("First scene of Act 3. Empty means \"A3_Broom\".")]
+    [SerializeField] private string nextActSceneName = "A3_Broom";
 
     [Header("Dialogue (the reflection lines are built from the player's choices)")]
     public List<A2BroomUwiDialogueLine> openingLines = new List<A2BroomUwiDialogueLine>();
@@ -923,6 +923,10 @@ public class A2_Broom_uwian : MonoBehaviour
             canvasTransform = dialogueBox.transform.parent;
         if (canvasTransform == null)
             return;
+
+        // The scene was saved before Act 3 existed, so an empty value means the default.
+        if (string.IsNullOrEmpty(nextActSceneName))
+            nextActSceneName = "A3_Broom";
 
         TMP_FontAsset font = messageInputText != null ? messageInputText.font : null;
         ActResultsScreen.Show(canvasTransform, choiceContainer, font, actResultsTitle, mainMenuSceneName, nextActSceneName);
