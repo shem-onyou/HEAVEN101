@@ -137,8 +137,9 @@ public class A2_Croom_control : MonoBehaviour
     [Tooltip("Optional: rings when Ma'am arrives. Found by \"bell\" or \"teacher\".")]
     [SerializeField] private AudioSource teacherAudioSource;
 
-    [Header("Scene Transition (leave empty to stay on black after fade out)")]
-    [SerializeField] private string nextSceneName = "";
+    // Renamed from nextSceneName: the scene saved an empty value there, which kept the game on black.
+    [Header("Scene Transition")]
+    [SerializeField] private string uwianSceneName = "A2_School_uwian";
 
     [Header("Dialogue Sequence")]
     [Tooltip("Chat and Ma'am arrives, up to the start of the quiz.")]
@@ -147,6 +148,9 @@ public class A2_Croom_control : MonoBehaviour
     public List<A2CroomDialogueLine> copyRequestLines = new List<A2CroomDialogueLine>();
     [Tooltip("Choice 1 = let him copy. Ends with Elijah asking if the answer is right.")]
     public List<A2CroomDialogueLine> letCopyLines = new List<A2CroomDialogueLine>();
+    [Tooltip("Played instead of letCopyLines when the player admitted in A2_School that they didn't review. " +
+             "Elijah already knows, so he doesn't ask if the answer is right.")]
+    public List<A2CroomDialogueLine> honestLetCopyLines = new List<A2CroomDialogueLine>();
     [Tooltip("Choice 1 = refuse.")]
     public List<A2CroomDialogueLine> refuseLines = new List<A2CroomDialogueLine>();
     [Tooltip("Choice 2 = admit you're not sure.")]
@@ -256,6 +260,13 @@ public class A2_Croom_control : MonoBehaviour
             letCopyLines.Add(new A2CroomDialogueLine(classmate1Name, A2_School_control.LiedAboutReviewing
                 ? "Wait... you reviewed last night, right? So that's really the right answer?"
                 : "Wait... are you sure that's really the right answer?"));
+        }
+
+        if (honestLetCopyLines.Count == 0)
+        {
+            honestLetCopyLines.Add(new A2CroomDialogueLine("You", "(...Ugh.) It's \"{answer}\". Quick, before Ma'am sees."));
+            honestLetCopyLines.Add(new A2CroomDialogueLine(classmate1Name, "Salamat! I know you didn't review either, but it's still better than my guess. Hehe."));
+            honestLetCopyLines.Add(new A2CroomDialogueLine("You", "(I hope it's even right...)", A2CroomAction.ElijahGoesBack));
         }
 
         if (refuseLines.Count == 0)
@@ -637,6 +648,17 @@ public class A2_Croom_control : MonoBehaviour
         ShowChoice(letCopyChoiceText, () =>
         {
             PlayerDatabase.RecordChoice(LetCopyChoiceId, "Elijah: " + question, letCopyChoiceText, letCopyPoints, "let_copy");
+
+            // The player told Elijah this morning that they didn't review, so he won't ask "are you sure?".
+            if (PlayerDatabase.GetChoice(A2_School_control.ReviewChoiceId) == A2_School_control.HonestAnswer)
+            {
+                // Clear an old answer from a previous playthrough so it doesn't show in the results.
+                PlayerDatabase.Data.choices.RemoveAll(choice => choice.choiceId == AnswerSureChoiceId);
+                PlayerDatabase.Save();
+                StartLines(honestLetCopyLines, ResumeQuiz);
+                return;
+            }
+
             StartLines(letCopyLines, ShowAnswerSureChoice);
         },
         refuseChoiceText, () =>
@@ -1168,8 +1190,10 @@ public class A2_Croom_control : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
-        if (!string.IsNullOrEmpty(nextSceneName))
-            SceneManager.LoadScene(nextSceneName);
+        if (string.IsNullOrEmpty(uwianSceneName))
+            uwianSceneName = "A2_School_uwian";
+
+        SceneManager.LoadScene(uwianSceneName);
     }
 
     // FadeOut may carry an Animator (copied from FadeIn) that would fight the script, so it is turned off.

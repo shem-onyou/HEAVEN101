@@ -34,8 +34,8 @@ public static class ActResultsScreen
         GameObject textObject = new GameObject("ActResultsText", typeof(RectTransform), typeof(TextMeshProUGUI));
         RectTransform textTransform = textObject.GetComponent<RectTransform>();
         textTransform.SetParent(canvasRect, false);
-        textTransform.anchorMin = new Vector2(0.1f, 0.25f);
-        textTransform.anchorMax = new Vector2(0.9f, 0.95f);
+        textTransform.anchorMin = new Vector2(0.08f, 0.3f);
+        textTransform.anchorMax = new Vector2(0.92f, 0.95f);
         textTransform.offsetMin = Vector2.zero;
         textTransform.offsetMax = Vector2.zero;
         textTransform.SetAsLastSibling();
@@ -44,12 +44,27 @@ public static class ActResultsScreen
         if (font != null)
             text.font = font;
         text.enableAutoSizing = true;
-        text.fontSizeMin = 10f;
-        text.fontSizeMax = 28f;
+        // Big enough to read on a phone; the recap is kept short so it still fits.
+        text.fontSizeMin = 16f;
+        text.fontSizeMax = 40f;
+        text.lineSpacing = 10f;
         text.alignment = TextAlignmentOptions.Top;
         text.color = Color.white;
         text.raycastTarget = false;
-        text.text = $"<size=130%><b>{title}</b></size>\n\n{PlayerDatabase.BuildSummary()}";
+
+        int actNumber = CurrentActNumber();
+        string summary = actNumber > 0 ? PlayerDatabase.BuildActSummary(actNumber) : PlayerDatabase.BuildSummary();
+        text.text = $"<size=140%><b>{title}</b></size>\n\n{summary}";
+    }
+
+    // Reads the act from the scene name: "A1_BR_lastscene" is Act 1, "A2_Broom_uwi" is Act 2.
+    private static int CurrentActNumber()
+    {
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (sceneName.Length >= 3 && sceneName[0] == 'A' && sceneName[2] == '_' && char.IsDigit(sceneName[1]))
+            return sceneName[1] - '0';
+
+        return 0;
     }
 
     // Reuses the scene's styled choice_Container buttons, moved below the summary.

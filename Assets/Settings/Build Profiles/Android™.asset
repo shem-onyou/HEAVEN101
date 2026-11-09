@@ -52,6 +52,27 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/Scenes/Act1_Scenes/A1_BR_lastscene.unity
     m_guid: ced536065de5fd6489c11fc4e4280a89
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act2_Scenes/A2_Broom.unity
+    m_guid: 11655b34b2fc66241be4b3e1346d7c1e
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act2_Scenes/A2_Broom_uwi.unity
+    m_guid: 62e8cea606422134facba71bc4462d4b
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act2_Scenes/A2_Croom.unity
+    m_guid: 01a829017f11bbd4c9cad1310a1ee33a
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act2_Scenes/A2_Lroom.unity
+    m_guid: 3566e434bca04264eadb8d343f92601b
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act2_Scenes/A2_Lroom_uwi.unity
+    m_guid: 08f3836b2dfe6c74bb7a4b6e7c03e647
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act2_Scenes/A2_School.unity
+    m_guid: d7c1805c3f316574e8d99fabdd939afd
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act2_Scenes/A2_School_uwian.unity
+    m_guid: 6fb1777ce995ccd409555e97e7c62ffe
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:

@@ -753,7 +753,7 @@ MonoBehaviour:
   classmate1Image: {fileID: 1397287431}
   classmate2Image: {fileID: 1170387466}
   classmate1Name: Elijah
-  classmate2Name: Classmate
+  classmate2Name: Perzifanie
   walkInDuration: 1
   classmateSpacing: 0.3
   darkenedTint: {r: 0.45, g: 0.45, b: 0.45, a: 1}

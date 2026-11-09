@@ -188,6 +188,94 @@ public static class PlayerDatabase
         return summary.ToString();
     }
 
+    // A short, phone-friendly recap of one act: only what changed the good points,
+    // one short line each, in the order it happened.
+    public static string BuildActSummary(int actNumber)
+    {
+        List<(string time, int order, int points, string label)> entries = new List<(string, int, int, string)>();
+        int actPoints = 0;
+
+        foreach (PlayerChoiceRecord choice in Data.choices)
+        {
+            if (!IsFromAct(choice.sceneName, actNumber))
+                continue;
+
+            actPoints += choice.points;
+            if (choice.points != 0)
+                entries.Add((choice.recordedAt, entries.Count, choice.points, ShortLabel(choice.choiceId, choice.points, choice.answerText)));
+        }
+
+        foreach (PlayerActionRecord action in Data.actions)
+        {
+            if (!IsFromAct(action.sceneName, actNumber))
+                continue;
+
+            actPoints += action.points;
+            if (action.points != 0)
+                entries.Add((action.recordedAt, entries.Count, action.points, ShortLabel(action.actionId, action.points, action.description)));
+        }
+
+        entries.Sort((a, b) =>
+        {
+            int byTime = string.CompareOrdinal(a.time, b.time);
+            return byTime != 0 ? byTime : a.order.CompareTo(b.order);
+        });
+
+        StringBuilder summary = new StringBuilder();
+        summary.AppendLine($"This Act: {FormatPoints(actPoints)}    Total: {GoodPoints}");
+        summary.AppendLine();
+
+        if (entries.Count == 0)
+            summary.AppendLine("(nothing recorded)");
+        foreach (var entry in entries)
+            summary.AppendLine($"{FormatPoints(entry.points)}  {entry.label}");
+
+        return summary.ToString().TrimEnd();
+    }
+
+    // Act 1 scenes are "Act One" and "A1_..."; Act 2 scenes are "A2_...", and so on.
+    private static bool IsFromAct(string sceneName, int actNumber)
+    {
+        if (string.IsNullOrEmpty(sceneName))
+            return false;
+
+        if (actNumber == 1 && sceneName.StartsWith("Act One"))
+            return true;
+
+        return sceneName.StartsWith($"A{actNumber}_");
+    }
+
+    // Short labels for the results screen. Unknown ids fall back to the recorded text, shortened.
+    private static string ShortLabel(string id, int points, string fallback)
+    {
+        bool good = points > 0;
+
+        if (id.StartsWith("A1_LivingRoom_line"))
+            return good ? "Helped Nanay" : "Didn't help Nanay";
+
+        switch (id)
+        {
+            case "act1_morning_chores": return "Cleaned the living room";
+            case "act1_cut_class": return good ? "Went to class" : "Cut class";
+            case "act1_pulubi": return good ? "Gave to the pulubi" : "Didn't give to the pulubi";
+
+            case "act2_help_nanay": return good ? "Helped Nanay again" : "Didn't help Nanay";
+            case "act2_morning_chores": return "Cleaned the living room";
+            case "act2_did_you_review": return good ? "Admitted you didn't review" : "Lied about reviewing";
+            case "act2_let_copy": return good ? "Didn't let Elijah copy" : "Let Elijah copy";
+            case "act2_answer_sure": return good ? "Admitted you weren't sure" : "Insisted you were right";
+            case "act2_lend_money": return good ? "Lent Elijah your lunch money" : "Kept your lunch money";
+            case "act2_pulubi_medicine": return good ? "Gave your pamasahe for medicine" : "Kept your pamasahe";
+            case "act2_honest_nanay": return good ? "Told Nanay the truth" : "Lied to Nanay";
+            case "act2_promise_nanay": return good ? "Kept your promise to Nanay" : "Broke your promise to Nanay";
+        }
+
+        if (string.IsNullOrEmpty(fallback))
+            return id;
+
+        return fallback.Length > 36 ? fallback.Substring(0, 33) + "..." : fallback;
+    }
+
     // Uses TMP rich text: green for good points, red for bad ones.
     private static string FormatPoints(int points)
     {
