@@ -2221,6 +2221,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1534801570}
+  - component: {fileID: 1534801571}
   m_Layer: 0
   m_Name: A3_bedroom_uwian_control
   m_TagString: Untagged
@@ -2243,6 +2244,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1534801571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1534801569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d8f36c1dc10f0740b18d53c9873c2f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::A3_Broom_uwian_control
+  fadeScreenIn: {fileID: 0}
+  fadeOutScreen: {fileID: 0}
+  dialogueBox: {fileID: 0}
+  nextButton: {fileID: 0}
+  choiceContainer: {fileID: 0}
+  choiceButton1: {fileID: 0}
+  choiceButton1Text: {fileID: 0}
+  choiceButton2: {fileID: 0}
+  choiceButton2Text: {fileID: 0}
+  charNameText: {fileID: 0}
+  messageInputText: {fileID: 0}
+  playerName: You
+  darkenedTint: {r: 0.45, g: 0.45, b: 0.45, a: 1}
+  tintDuration: 0.15
+  jitterDuration: 0.3
+  jitterStrength: 6
+  trembleStrength: 2
+  trembleDuration: 0.8
+  walkDuration: 1
+  typingSpeed: 0.03
+  slowTypingSpeed: 0.055
+  showGoodDeedsCounter: 1
+  counterFontSize: 30
+  heavenSprite: {fileID: 0}
+  noHeavenGlowTint: {r: 1, g: 0.95, b: 0.8, a: 1}
+  lordName: God
+  lordAppearDuration: 2.5
+  lordRiseDistance: 30
+  lordTypingSpeed: 0.05
+  lordListeningTint: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+  undeservingChoiceText: I don't deserve it...
+  nothingIDidChoiceText: Not because of anything I did...
+  trustLine: ...but I trust You.
+  verseLines:
+  - '"For by grace you have been saved through faith,'
+  - and that not of yourselves;
+  - it is the gift of God,
+  - not of works, that no one would boast."
+  verseReference: Ephesians 2:8-9
+  theEndText: THE END
+  mainMenuSceneName: Main Menu
+  actNumber: 3
+  visionLines: []
+  wakeLines: []
+  morningLines: []
 --- !u!1 &1606129216
 GameObject:
   m_ObjectHideFlags: 0

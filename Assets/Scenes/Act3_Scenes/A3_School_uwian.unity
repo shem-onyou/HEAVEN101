@@ -702,6 +702,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 388098455}
+  - component: {fileID: 388098456}
   m_Layer: 0
   m_Name: A3_school_uwian_control
   m_TagString: Untagged
@@ -724,6 +725,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &388098456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 388098453}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94cd6f0cba111454290878be1a7353e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::A3_School_uwian_control
+  fadeScreenIn: {fileID: 0}
+  fadeOutScreen: {fileID: 0}
+  dialogueBox: {fileID: 0}
+  nextButton: {fileID: 0}
+  choiceContainer: {fileID: 0}
+  choiceButton1: {fileID: 0}
+  choiceButton1Text: {fileID: 0}
+  choiceButton2: {fileID: 0}
+  choiceButton2Text: {fileID: 0}
+  charNameText: {fileID: 0}
+  messageInputText: {fileID: 0}
+  playerName: You
+  darkenedTint: {r: 0.45, g: 0.45, b: 0.45, a: 1}
+  tintDuration: 0.15
+  jitterDuration: 0.3
+  jitterStrength: 6
+  trembleStrength: 2
+  trembleDuration: 0.8
+  walkDuration: 1
+  typingSpeed: 0.03
+  slowTypingSpeed: 0.055
+  showGoodDeedsCounter: 1
+  counterFontSize: 30
+  pulubiName: Pulubi
+  listenChoiceText: Stop and listen
+  runChoiceText: Run past him
+  runBobStrength: 6
+  nextSceneName: A3_Lroom_uwi
+  introLines: []
+  listenLines: []
+  childBetterLines: []
+  childStillSickLines: []
+  trustLines: []
+  runLines: []
 --- !u!1 &441150446
 GameObject:
   m_ObjectHideFlags: 0

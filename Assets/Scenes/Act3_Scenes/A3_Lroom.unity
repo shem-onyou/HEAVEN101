@@ -294,6 +294,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 237351638}
+  - component: {fileID: 237351639}
   m_Layer: 0
   m_Name: A3_livingroom_control
   m_TagString: Untagged
@@ -316,6 +317,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &237351639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237351636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a53e085a4ba4bb94cb5d1be6b0d8244b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::A3_Lroom_control
+  fadeScreenIn: {fileID: 0}
+  fadeOutScreen: {fileID: 0}
+  dialogueBox: {fileID: 0}
+  nextButton: {fileID: 0}
+  choiceContainer: {fileID: 0}
+  choiceButton1: {fileID: 0}
+  choiceButton1Text: {fileID: 0}
+  choiceButton2: {fileID: 0}
+  choiceButton2Text: {fileID: 0}
+  charNameText: {fileID: 0}
+  messageInputText: {fileID: 0}
+  playerName: You
+  darkenedTint: {r: 0.45, g: 0.45, b: 0.45, a: 1}
+  tintDuration: 0.15
+  jitterDuration: 0.3
+  jitterStrength: 6
+  trembleStrength: 2
+  trembleDuration: 0.8
+  walkDuration: 1
+  typingSpeed: 0.03
+  slowTypingSpeed: 0.055
+  showGoodDeedsCounter: 1
+  counterFontSize: 30
+  nanayPaleTint: {r: 0.92, g: 0.9, b: 1, a: 1}
+  choresHint: Clean up everything!
+  cleaningPitchVariation: 0.1
+  beGoodChoiceText: I just want to be good, Nay.
+  enoughChoiceText: I have to do enough.
+  nextSceneName: A3_School
+  introLines: []
+  afterChoresLines: []
+  beGoodLines: []
+  enoughLines: []
+  outroLines: []
 --- !u!1 &241771737
 GameObject:
   m_ObjectHideFlags: 0

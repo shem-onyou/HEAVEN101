@@ -294,6 +294,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 237351638}
+  - component: {fileID: 237351639}
   m_Layer: 0
   m_Name: A3_livingroom_uwian_control
   m_TagString: Untagged
@@ -316,6 +317,65 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &237351639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237351636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34ebcac8a61290d41ad8aaa2f4363d9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::A3_Lroom_uwian_control
+  fadeScreenIn: {fileID: 0}
+  fadeOutScreen: {fileID: 0}
+  dialogueBox: {fileID: 0}
+  nextButton: {fileID: 0}
+  choiceContainer: {fileID: 0}
+  choiceButton1: {fileID: 0}
+  choiceButton1Text: {fileID: 0}
+  choiceButton2: {fileID: 0}
+  choiceButton2Text: {fileID: 0}
+  charNameText: {fileID: 0}
+  messageInputText: {fileID: 0}
+  playerName: You
+  darkenedTint: {r: 0.45, g: 0.45, b: 0.45, a: 1}
+  tintDuration: 0.15
+  jitterDuration: 0.3
+  jitterStrength: 6
+  trembleStrength: 2
+  trembleDuration: 0.8
+  walkDuration: 1
+  typingSpeed: 0.03
+  slowTypingSpeed: 0.055
+  showGoodDeedsCounter: 1
+  counterFontSize: 30
+  nanayName: Nanay
+  neighborName: Aling Rosa
+  nanayPaleTint: {r: 0.88, g: 0.86, b: 1, a: 1}
+  nightTint: {r: 0.55, g: 0.55, b: 0.72, a: 1}
+  prayerColdTint: {r: 0.3, g: 0.32, b: 0.5, a: 1}
+  peaceWarmTint: {r: 0.85, g: 0.72, b: 0.55, a: 1}
+  fallbackDeedPrayers:
+  - Lord... I tried my best.
+  - Lord... I helped everyone I could.
+  bargainPrayer1: Lord, I'll do a hundred more good deeds. Just heal her.
+  bargainButton1: '"I''ll do a hundred more."'
+  bargainPrayer2: Lord, I'll never make a mistake again. Just please heal her.
+  bargainButton2: '"I''ll never fail again."'
+  outburstPrayer1: Isn't it ENOUGH?!
+  outburstPrayer2: What more do You WANT from me?!
+  surrenderPrayers:
+  - ...I can't do this all, Lord.
+  - Please... help me.
+  - I trust You.
+  prayerFontSize: 34
+  prayerTypingSpeed: 0.07
+  nextSceneName: A3_Broom_uwi
+  arriveLines: []
+  nightLines: []
 --- !u!1 &241771737
 GameObject:
   m_ObjectHideFlags: 0

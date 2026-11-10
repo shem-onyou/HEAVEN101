@@ -73,6 +73,27 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/Scenes/Act2_Scenes/A2_School_uwian.unity
     m_guid: 6fb1777ce995ccd409555e97e7c62ffe
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act3_Scenes/A3_Broom.unity
+    m_guid: 3cc29e6dc5a758b459f6b5a35c3bc870
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act3_Scenes/A3_Broom_uwi.unity
+    m_guid: 5cbef7abd8f40e343ae75ef7b5b48213
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act3_Scenes/A3_Croom.unity
+    m_guid: 433ed0345ec4e92488810177e6d3e56a
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act3_Scenes/A3_Lroom.unity
+    m_guid: 44cd25cd4fffbf0489e51da00bf5a281
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act3_Scenes/A3_Lroom_uwi.unity
+    m_guid: 0c07945d5db2e3b4897be7dc51482f93
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act3_Scenes/A3_School.unity
+    m_guid: 3742872fd02e9664cb1c6ab6f484b1d1
+  - m_enabled: 1
+    m_path: Assets/Scenes/Act3_Scenes/A3_School_uwian.unity
+    m_guid: 02923912413f5de4f9a1a41380f4d6ff
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
