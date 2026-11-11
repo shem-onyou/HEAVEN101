@@ -10,11 +10,11 @@ public class A3_School_control : A3SceneBase
 
     [Header("Characters")]
     [SerializeField] private string classmate1Name = "Elijah";
-    [SerializeField] private string classmate2Name = "Classmate";
+    [SerializeField] private string classmate2Name = "Perzifanie";
 
     [Header("Choice: Help carry the project?")]
-    [SerializeField] private string carryChoiceText = "I'll carry it!";
-    [SerializeField] private string restChoiceText = "Sorry... I need to sit down.";
+    [SerializeField] private string carryAloneChoiceText = "I'll carry it for you!";
+    [SerializeField] private string carryTogetherChoiceText = "Let's carry it together.";
     [SerializeField] private int carryPoints = 1;
     [SerializeField] private int restPoints = 0;
 
@@ -31,11 +31,15 @@ public class A3_School_control : A3SceneBase
     public List<A3Line> moneyLines = new List<A3Line>();
     public List<A3Line> worryLines = new List<A3Line>();
     public List<A3Line> carryLines = new List<A3Line>();
-    public List<A3Line> restLines = new List<A3Line>();
+    public List<A3Line> togetherLines = new List<A3Line>();
     public List<A3Line> bellLines = new List<A3Line>();
 
     protected override void SetupScene()
     {
+        // The scene was saved with the old placeholder name.
+        if (string.IsNullOrEmpty(classmate2Name) || classmate2Name == "Classmate")
+            classmate2Name = "Perzifanie";
+
         A3Character elijah = AddCharacter("classmate1", classmate1Name);
         A3Character classmate = AddCharacter("classmate2", classmate2Name);
         SpreadIfStacked(elijah, classmate);
@@ -51,8 +55,7 @@ public class A3_School_control : A3SceneBase
     {
         if (arriveLines.Count == 0)
         {
-            arriveLines.Add(new A3Line(playerName, "(Early. Good. I can fix Ma'am's chairs before anyone comes.)", "deed"));
-            arriveLines.Add(new A3Line(playerName, "(Sweep the hallway too... Five.)", "deed"));
+            arriveLines.Add(new A3Line(playerName, "(Made it. The gate's not even crowded yet.)"));
             arriveLines.Add(new A3Line(classmate2Name, "Uy, good morning! You're so early!", "enter:classmate2"));
             arriveLines.Add(new A3Line(playerName, "Good morning!"));
         }
@@ -88,24 +91,24 @@ public class A3_School_control : A3SceneBase
         if (worryLines.Count == 0)
         {
             worryLines.Add(new A3Line(classmate2Name, "Uy... are you okay? You look so tired."));
-            worryLines.Add(new A3Line(classmate2Name, "Ma'am's chairs, the hallway... did you do all that this morning?"));
-            worryLines.Add(new A3Line(playerName, "Hehe... it's nothing."));
-            worryLines.Add(new A3Line(classmate2Name, "Hmm... Oh! Our project is so heavy. Can someone help me carry it to the room?"));
+            worryLines.Add(new A3Line(classmate2Name, "Did you even sleep last night?"));
+            worryLines.Add(new A3Line(playerName, "Hehe... a little."));
+            worryLines.Add(new A3Line(classmate2Name, "Hmm... Oh! Our project is so heavy. Can someone help me carry it inside?"));
         }
 
         if (carryLines.Count == 0)
         {
-            carryLines.Add(new A3Line(playerName, "Here, give it to me!", "deed"));
+            carryLines.Add(new A3Line(playerName, "I'll carry it for you! Give it here.", "deed"));
             carryLines.Add(new A3Line(classmate2Name, "Wow, salamat! ...Wait. Are your hands shaking?"));
             carryLines.Add(new A3Line(classmate1Name, "Pre, put it down. Sit down. Seriously."));
             carryLines.Add(new A3Line(playerName, "(I'm fine. I'm fine. That's {deeds}...)"));
         }
 
-        if (restLines.Count == 0)
+        if (togetherLines.Count == 0)
         {
-            restLines.Add(new A3Line(playerName, "Sorry... I need to sit down for a bit."));
-            restLines.Add(new A3Line(classmate1Name, "Finally. Pahinga ka muna, pre. I'll carry it."));
-            restLines.Add(new A3Line(playerName, "(Why do I feel guilty just for resting...?)"));
+            togetherLines.Add(new A3Line(playerName, "Let's carry it together?"));
+            togetherLines.Add(new A3Line(classmate1Name, "Sige. Pre, take the lighter side. You look tired."));
+            togetherLines.Add(new A3Line(playerName, "(...Why does it feel like this one doesn't count?)"));
         }
 
         if (bellLines.Count == 0)
@@ -132,14 +135,14 @@ public class A3_School_control : A3SceneBase
         yield return PlayLines(worryLines);
 
         int picked = -1;
-        yield return WaitForChoice(carryChoiceText, restChoiceText, choice => picked = choice);
+        yield return WaitForChoice(carryAloneChoiceText, carryTogetherChoiceText, choice => picked = choice);
         const string question = "Your classmate asked for help carrying their heavy project.";
         PlayerDatabase.RecordChoice(HelpClassmateChoiceId, question,
-            picked == 0 ? carryChoiceText : restChoiceText,
+            picked == 0 ? carryAloneChoiceText : carryTogetherChoiceText,
             picked == 0 ? carryPoints : restPoints,
-            picked == 0 ? "carried" : "rested");
+            picked == 0 ? "carried_alone" : "together");
 
-        yield return PlayLines(picked == 0 ? carryLines : restLines);
+        yield return PlayLines(picked == 0 ? carryLines : togetherLines);
         yield return PlayLines(bellLines);
         yield return FadeOutAndLoad(nextSceneName, "A3_Croom", 1.2f);
     }

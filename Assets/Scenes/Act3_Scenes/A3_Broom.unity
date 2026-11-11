@@ -2134,17 +2134,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a8926fd19d82634d9ef19e936dfff72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::A3_Broom_control
-  fadeScreenIn: {fileID: 0}
-  fadeOutScreen: {fileID: 0}
-  dialogueBox: {fileID: 0}
-  nextButton: {fileID: 0}
-  choiceContainer: {fileID: 0}
-  choiceButton1: {fileID: 0}
-  choiceButton1Text: {fileID: 0}
+  fadeScreenIn: {fileID: 588175172}
+  fadeOutScreen: {fileID: 1267630084}
+  dialogueBox: {fileID: 1043869004}
+  nextButton: {fileID: 513663489}
+  choiceContainer: {fileID: 1266460893}
+  choiceButton1: {fileID: 1959626978}
+  choiceButton1Text: {fileID: 1727015181}
   choiceButton2: {fileID: 0}
   choiceButton2Text: {fileID: 0}
-  charNameText: {fileID: 0}
-  messageInputText: {fileID: 0}
+  charNameText: {fileID: 1329877841}
+  messageInputText: {fileID: 1641031147}
   playerName: You
   darkenedTint: {r: 0.45, g: 0.45, b: 0.45, a: 1}
   tintDuration: 0.15

@@ -9,8 +9,8 @@ using TMPro;
 //   1. offering their own good deeds (taken from the save), which fade away;
 //   2. bargaining ("I'll do a hundred more..."), which fades away too;
 //   3. an outburst, and the Good Deeds counter breaks;
-//   4. surrender: "I can't do this all, Lord." / "Please... help me." / "I trust You." These lines stay.
-// Then the room slowly turns warm, and the player falls asleep.
+//   4. nothing left: a whispered "...please." The room sinks into darkness and the player falls
+//      asleep from exhaustion. The real surrender ("Lord... I need You.") happens in A3_Heaven.
 public class A3_Lroom_uwian_control : A3SceneBase
 {
     public const string CareActionId = "act3_care_nanay";
@@ -26,7 +26,8 @@ public class A3_Lroom_uwian_control : A3SceneBase
     [Header("Room Lighting")]
     [SerializeField] private Color nightTint = new Color(0.55f, 0.55f, 0.72f, 1f);
     [SerializeField] private Color prayerColdTint = new Color(0.3f, 0.32f, 0.5f, 1f);
-    [SerializeField] private Color peaceWarmTint = new Color(0.85f, 0.72f, 0.55f, 1f);
+    [Tooltip("The room sinks almost to black as the player falls asleep.")]
+    [SerializeField] private Color exhaustedTint = new Color(0.12f, 0.12f, 0.2f, 1f);
 
     [Header("The Prayer")]
     [Tooltip("Used when the player has fewer than two good deeds saved.")]
@@ -37,12 +38,14 @@ public class A3_Lroom_uwian_control : A3SceneBase
     [SerializeField] private string bargainButton2 = "\"I'll never fail again.\"";
     [SerializeField] private string outburstPrayer1 = "Isn't it ENOUGH?!";
     [SerializeField] private string outburstPrayer2 = "What more do You WANT from me?!";
-    [SerializeField] private string[] surrenderPrayers = { "...I can't do this all, Lord.", "Please... help me.", "I trust You." };
+    [Tooltip("The last whisper before falling asleep.")]
+    [SerializeField] private string whisperPrayer = "...please.";
     [SerializeField] private float prayerFontSize = 34f;
     [SerializeField] private float prayerTypingSpeed = 0.07f;
 
+    // Renamed from nextSceneName: the scene had "A3_Broom_uwi" saved there, which is now A3_Heaven.
     [Header("Scene Transition")]
-    [SerializeField] private string nextSceneName = "A3_Broom_uwi";
+    [SerializeField] private string heavenSceneName = "A3_Heaven";
 
     [Header("Dialogue")]
     public List<A3Line> arriveLines = new List<A3Line>();
@@ -51,7 +54,6 @@ public class A3_Lroom_uwian_control : A3SceneBase
     private A3Character nanay;
     private AudioSource doorSound;
     private AudioSource heartbeatSound;
-    private AudioSource peaceMusic;
 
     protected override void SetupScene()
     {
@@ -67,7 +69,6 @@ public class A3_Lroom_uwian_control : A3SceneBase
 
         doorSound = FindSound("door");
         heartbeatSound = FindSound("beat");
-        peaceMusic = FindSound("piano", "prayer", "peace");
 
         FillDefaultLines();
     }
@@ -77,7 +78,7 @@ public class A3_Lroom_uwian_control : A3SceneBase
         if (arriveLines.Count == 0)
         {
             arriveLines.Add(new A3Line(playerName, "NANAY!"));
-            arriveLines.Add(new A3Line(nanayName, "A-anak... I'm okay... *cough* *cough*", "sfx:cough"));
+            arriveLines.Add(new A3Line(nanayName, "A-anak... I'm okay... *cough* *cough*", "cough"));
             arriveLines.Add(new A3Line(neighborName, "Ay, salamat at nandito ka na. I found her on the floor."));
             arriveLines.Add(new A3Line(neighborName, "Her fever is very high. Give her medicine and let her rest. I'll come back later, ha?"));
             arriveLines.Add(new A3Line(playerName, "Nay... I'm here. I'll take care of everything.", "sfx:door"));
@@ -91,7 +92,7 @@ public class A3_Lroom_uwian_control : A3SceneBase
         {
             nightLines.Add(new A3Line(nanayName, "Anak... you've done so much... magpahinga ka na."));
             nightLines.Add(new A3Line(playerName, "Not yet, Nay. Not until you're better."));
-            nightLines.Add(new A3Line(nanayName, "*cough* *cough*...", "sfx:cough"));
+            nightLines.Add(new A3Line(nanayName, "*cough* *cough*...", "cough"));
             nightLines.Add(new A3Line(playerName, "(Her fever isn't going down...)"));
             nightLines.Add(new A3Line(playerName, "(I did everything. Everything right. So why isn't it working...?)"));
             nightLines.Add(new A3Line(playerName, "(She's asleep... but she's still burning up.)", "pause:1.5"));
@@ -114,7 +115,7 @@ public class A3_Lroom_uwian_control : A3SceneBase
         yield return PlayLines(nightLines);
         yield return Prayer();
 
-        yield return FadeOutAndLoad(nextSceneName, "A3_Broom_uwi", 3f);
+        yield return FadeOutAndLoad(heavenSceneName, "A3_Heaven", 3f);
     }
 
     // Fade to black, "Hours later...", and the room comes back at night.
@@ -165,16 +166,10 @@ public class A3_Lroom_uwian_control : A3SceneBase
         PlayerDatabase.RecordChoice(OutburstChoiceId, "When nothing worked, you cried out to God.", outburst, 0, picked == 0 ? "enough" : "what_more");
         yield return Outburst(outburst);
 
-        // 4. Surrender. These lines stay.
-        for (int i = 0; i < surrenderPrayers.Length; i++)
-        {
-            yield return WaitForChoice(surrenderPrayers[i], null, null);
-            yield return ShowStayingLine(surrenderPrayers[i], i);
-            yield return new WaitForSeconds(0.8f);
-        }
-
-        PlayerDatabase.RecordChoice(PrayerChoiceId, "Your prayer that night.", string.Join(" ", surrenderPrayers), 0, "surrendered");
-        yield return Peace();
+        // 4. Nothing left but a whisper.
+        yield return WaitForChoice(whisperPrayer, null, null);
+        PlayerDatabase.RecordChoice(PrayerChoiceId, "Your prayer that night ended with:", whisperPrayer, 0, "whisper");
+        yield return Exhausted();
     }
 
     private static string ButtonLabelFor(string prayer)
@@ -196,6 +191,7 @@ public class A3_Lroom_uwian_control : A3SceneBase
         yield return new WaitForSeconds(1.2f);
 
         PlayEffect(FindSound("cough"));
+        StartCoroutine(CoughShake(nanay, 2, 4f));
         StartCoroutine(FlickerCounter());
         yield return new WaitForSeconds(0.8f);
 
@@ -221,34 +217,21 @@ public class A3_Lroom_uwian_control : A3SceneBase
         yield return new WaitForSeconds(3f);
     }
 
-    private readonly List<TMP_Text> stayingLines = new List<TMP_Text>();
-
-    private IEnumerator ShowStayingLine(string prayer, int row)
+    // The whisper types out slowly and small. The heartbeat fades, the room sinks into darkness,
+    // and the player falls asleep beside Nanay with nothing left to give.
+    private IEnumerator Exhausted()
     {
-        TMP_Text line = CreatePrayerText(prayer, row);
-        stayingLines.Add(line);
-        yield return TypeOnScreen(line, prayerTypingSpeed * 1.3f);
-    }
-
-    // The room slowly turns warm. Nanay stops trembling. The player falls asleep.
-    private IEnumerator Peace()
-    {
-        if (heartbeatSound != null) StartCoroutine(FadeAudio(heartbeatSound, 0f, 3f));
-        StartLoop(peaceMusic, 1f, 3f);
-
-        if (nanay != null)
-        {
-            nanay.trembles = false;
-            nanay.baseColor = Multiply(nanay.baseColor, new Color(1.05f, 1.03f, 0.95f, 1f));
-        }
-
-        TintAllCharacters(new Color(0.8f, 0.72f, 0.62f, 1f));
-        yield return TintBackground(peaceWarmTint, 4f);
+        TMP_Text whisper = CreatePrayerText(whisperPrayer, 1);
+        whisper.fontSize = prayerFontSize * 0.8f;
+        whisper.color = new Color(0.85f, 0.85f, 0.9f, 1f);
+        yield return TypeOnScreen(whisper, prayerTypingSpeed * 2f);
         yield return new WaitForSeconds(2f);
 
-        foreach (TMP_Text line in stayingLines)
-            StartCoroutine(FadeTextAlpha(line, line.alpha, 0f, 2.5f));
-        yield return new WaitForSeconds(2.5f);
+        if (heartbeatSound != null) StartCoroutine(FadeAudio(heartbeatSound, 0f, 4f));
+        TintAllCharacters(new Color(0.15f, 0.15f, 0.22f, 1f));
+        StartCoroutine(FadeTextAlpha(whisper, whisper.alpha, 0f, 3f));
+        yield return TintBackground(exhaustedTint, 4f);
+        yield return new WaitForSeconds(1.5f);
     }
 
     // Rows go from top (0) to bottom (2) in the upper half of the screen.

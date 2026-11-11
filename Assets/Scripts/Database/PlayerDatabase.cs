@@ -270,7 +270,7 @@ public static class PlayerDatabase
             case "act2_promise_nanay": return good ? "Kept your promise to Nanay" : "Broke your promise to Nanay";
 
             case "act3_morning_chores": return "Cleaned the whole house";
-            case "act3_help_classmate": return good ? "Carried your classmate's project" : "Rested for a while";
+            case "act3_help_classmate": return good ? "Carried the project alone" : "Carried the project together";
             case "act3_care_nanay": return "Took care of Nanay all night";
         }
 
@@ -278,6 +278,28 @@ public static class PlayerDatabase
             return id;
 
         return fallback.Length > 36 ? fallback.Substring(0, 33) + "..." : fallback;
+    }
+
+    // Every good deed from every act, oldest first, as short labels ("Helped Nanay").
+    // Used by the final summary of the game.
+    public static List<string> GetGoodDeedLabels()
+    {
+        List<(string time, string label)> deeds = new List<(string, string)>();
+        foreach (PlayerChoiceRecord choice in Data.choices)
+            if (choice.points > 0) deeds.Add((choice.recordedAt, ShortLabel(choice.choiceId, choice.points, choice.answerText)));
+        foreach (PlayerActionRecord action in Data.actions)
+            if (action.points > 0) deeds.Add((action.recordedAt, ShortLabel(action.actionId, action.points, action.description)));
+
+        deeds.Sort((a, b) => string.CompareOrdinal(a.time, b.time));
+
+        List<string> labels = new List<string>();
+        foreach (var deed in deeds)
+        {
+            if (!labels.Contains(deed.label))
+                labels.Add(deed.label);
+        }
+
+        return labels;
     }
 
     // The player's own good deeds from every act, newest first, written as something they would say

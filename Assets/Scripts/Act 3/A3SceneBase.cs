@@ -11,12 +11,13 @@ using TMPro;
 //   "show:Nanay"      appear on the spot        "hide:Nanay"     disappear
 //   "deed"            +1 on the Good Deeds counter
 //   "pause" / "pause:2"   wait with the dialogue box hidden
-//   "shake"           shake the screen          "sfx:cough"      play a sound found by that word
+//   "shake"           shake the screen          "sfx:door"       play a sound found by that word
+//   "cough" / "cough:pulubi"   cough sound + the character shakes
 // A line with an empty message only runs its actions, then moves on by itself.
 [System.Serializable]
 public class A3Line
 {
-    [Tooltip("Optional actions before the line, separated by ';' (e.g. \"enter:Nanay;sfx:cough\").")]
+    [Tooltip("Optional actions before the line, separated by ';' (e.g. \"enter:Nanay;cough\").")]
     public string actions;
     public string speakerName;
     [TextArea(2, 5)] public string message;
@@ -258,6 +259,11 @@ public abstract class A3SceneBase : MonoBehaviour
         Button button = nextButton.GetComponent<Button>();
         if (button == null)
             return;
+
+        // Copied scenes (like Act One) may still have an OnClick saved in the Inspector that
+        // calls the old script; it is switched off so only this script handles Next.
+        for (int i = 0; i < button.onClick.GetPersistentEventCount(); i++)
+            button.onClick.SetPersistentListenerState(i, UnityEngine.Events.UnityEventCallState.Off);
 
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(NextButton);
@@ -664,6 +670,11 @@ public abstract class A3SceneBase : MonoBehaviour
             case "sfx":
                 PlayEffect(FindSound(argument.ToLowerInvariant()));
                 break;
+            case "cough":
+                // "cough" = Nanay coughs; "cough:pulubi" = someone else.
+                PlayEffect(FindSound("cough"));
+                yield return CoughShake(GetCharacter(string.IsNullOrEmpty(argument) ? "Nanay" : argument));
+                break;
             case "hidebox":
                 HideDialogueBox();
                 break;
@@ -779,6 +790,11 @@ public abstract class A3SceneBase : MonoBehaviour
         button.gameObject.SetActive(true);
         button.interactable = true;
         if (buttonText != null) buttonText.text = label;
+
+        // Same as the Next button: an old OnClick saved in a copied scene must not fire.
+        for (int i = 0; i < button.onClick.GetPersistentEventCount(); i++)
+            button.onClick.SetPersistentListenerState(i, UnityEngine.Events.UnityEventCallState.Off);
+
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() =>
         {
@@ -921,6 +937,33 @@ public abstract class A3SceneBase : MonoBehaviour
         jitterTarget.anchoredPosition = jitterRestPosition;
         jitterTarget = null;
         jitterCoroutine = null;
+    }
+
+    // A few quick jerks forward and down, like a body shaking from a cough.
+    protected IEnumerator CoughShake(A3Character character, int coughs = 3, float strength = 5f)
+    {
+        if (!IsOnScreen(character))
+            yield break;
+
+        RectTransform imageTransform = character.image.rectTransform;
+        Vector2 restPosition = imageTransform.anchoredPosition;
+
+        for (int i = 0; i < coughs; i++)
+        {
+            float elapsed = 0f;
+            const float jerkDuration = 0.16f;
+            while (elapsed < jerkDuration)
+            {
+                elapsed += Time.deltaTime;
+                float bump = Mathf.Sin(Mathf.Clamp01(elapsed / jerkDuration) * Mathf.PI);
+                float wobble = Mathf.Sin(elapsed * 90f) * strength * 0.4f;
+                imageTransform.anchoredPosition = restPosition + new Vector2(wobble, -bump * strength);
+                yield return null;
+            }
+
+            imageTransform.anchoredPosition = restPosition;
+            yield return new WaitForSeconds(0.07f);
+        }
     }
 
     // ------------------------------------------------------------------ screen effects
@@ -1170,12 +1213,13 @@ public abstract class A3SceneBase : MonoBehaviour
 
     private void CreateCounter(bool visible)
     {
+        // Top-right corner, so it never covers the "Kalat: x / y" progress on the top-left.
         counterText = CreateText("GoodDeedsCounter", CounterLabel(), counterFontSize,
-            new Vector2(0.02f, 0.87f), new Vector2(0.6f, 0.98f), TextAlignmentOptions.TopLeft);
+            new Vector2(0.4f, 0.87f), new Vector2(0.98f, 0.98f), TextAlignmentOptions.TopRight);
         if (counterText == null)
             return;
 
-        counterText.rectTransform.pivot = new Vector2(0f, 1f);
+        counterText.rectTransform.pivot = new Vector2(1f, 1f);
         counterText.outlineWidth = 0.25f;
         counterText.outlineColor = Color.black;
         counterText.alpha = 0f;

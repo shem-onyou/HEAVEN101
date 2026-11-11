@@ -62,7 +62,7 @@ public class A2_School_control : MonoBehaviour
     public Image classmate1Image;
     public Image classmate2Image;
     [SerializeField] private string classmate1Name = "Elijah";
-    [SerializeField] private string classmate2Name = "Classmate";
+    [SerializeField] private string classmate2Name = "Perzifanie";
     [SerializeField] private float walkInDuration = 1f;
     [Tooltip("Used only when both classmates were placed on the same spot: spreads them apart (fraction of the screen width).")]
     [Range(0f, 1f)] [SerializeField] private float classmateSpacing = 0.3f;

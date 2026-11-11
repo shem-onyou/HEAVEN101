@@ -20,8 +20,8 @@ public class A3_Lroom_control : A3SceneBase
     [SerializeField] private float cleaningPitchVariation = 0.1f;
 
     [Header("Choice: Why are you chasing something?")]
-    [SerializeField] private string beGoodChoiceText = "I just want to be good, Nay.";
-    [SerializeField] private string enoughChoiceText = "I have to do enough.";
+    [SerializeField] private string helpChoiceText = "I just want to help, Nay.";
+    [SerializeField] private string perfectChoiceText = "I want today to go right.";
 
     [Header("Scene Transition")]
     [SerializeField] private string nextSceneName = "A3_School";
@@ -29,10 +29,11 @@ public class A3_Lroom_control : A3SceneBase
     [Header("Dialogue")]
     public List<A3Line> introLines = new List<A3Line>();
     public List<A3Line> afterChoresLines = new List<A3Line>();
-    public List<A3Line> beGoodLines = new List<A3Line>();
-    public List<A3Line> enoughLines = new List<A3Line>();
+    public List<A3Line> helpLines = new List<A3Line>();
+    public List<A3Line> perfectLines = new List<A3Line>();
     public List<A3Line> outroLines = new List<A3Line>();
 
+    private A3Character nanay;
     private readonly List<ClickableUIItem> kalatItems = new List<ClickableUIItem>();
     private readonly HashSet<ClickableUIItem> cleanedItems = new HashSet<ClickableUIItem>();
     private TMP_Text progressText;
@@ -47,7 +48,7 @@ public class A3_Lroom_control : A3SceneBase
 
     protected override void SetupScene()
     {
-        A3Character nanay = AddCharacter("Nanay", "Nanay", trembles: true);
+        nanay = AddCharacter("Nanay", "Nanay", trembles: true);
         if (nanay.image != null)
             nanay.baseColor = Multiply(nanay.baseColor, nanayPaleTint);
 
@@ -83,7 +84,7 @@ public class A3_Lroom_control : A3SceneBase
         if (introLines.Count == 0)
         {
             introLines.Add(new A3Line(playerName, "Good morning, Nay!"));
-            introLines.Add(new A3Line("Nanay", "Good morning, anak... *cough*", "enterslow:Nanay;sfx:cough"));
+            introLines.Add(new A3Line("Nanay", "Good morning, anak... *cough*", "enterslow:Nanay;cough"));
             introLines.Add(new A3Line(playerName, "Nay... you look so pale."));
             introLines.Add(new A3Line("Nanay", "Okay lang ako. I'm just tired from the night shift."));
             introLines.Add(new A3Line(playerName, "Then sit down po. I'll clean the whole house!"));
@@ -93,22 +94,22 @@ public class A3_Lroom_control : A3SceneBase
 
         if (afterChoresLines.Count == 0)
         {
-            afterChoresLines.Add(new A3Line(playerName, "(That's {deeds} already... I can still do more.)"));
+            afterChoresLines.Add(new A3Line(playerName, "(Done! That's one. I can still do more.)"));
             afterChoresLines.Add(new A3Line("Nanay", "Anak..."));
             afterChoresLines.Add(new A3Line("Nanay", "Why do you look like you're chasing something?"));
             afterChoresLines.Add(new A3Line(playerName, "Huh? I'm not... I just..."));
         }
 
-        if (beGoodLines.Count == 0)
+        if (helpLines.Count == 0)
         {
-            beGoodLines.Add(new A3Line(playerName, "I just want to be good, Nay."));
-            beGoodLines.Add(new A3Line("Nanay", "You already are, anak."));
+            helpLines.Add(new A3Line(playerName, "I just want to help, Nay."));
+            helpLines.Add(new A3Line("Nanay", "You already help me so much, anak. Even before today."));
         }
 
-        if (enoughLines.Count == 0)
+        if (perfectLines.Count == 0)
         {
-            enoughLines.Add(new A3Line(playerName, "I have to do enough."));
-            enoughLines.Add(new A3Line("Nanay", "Enough... for who, anak?"));
+            perfectLines.Add(new A3Line(playerName, "I want today to go right."));
+            perfectLines.Add(new A3Line("Nanay", "Anak... it doesn't have to be perfect."));
         }
 
         if (outroLines.Count == 0)
@@ -116,7 +117,7 @@ public class A3_Lroom_control : A3SceneBase
             outroLines.Add(new A3Line("Nanay", "You're my child. You don't have to earn anything from me."));
             outroLines.Add(new A3Line(playerName, "(...)"));
             outroLines.Add(new A3Line(playerName, "Nay, let me stay home today. I'll take care of you."));
-            outroLines.Add(new A3Line("Nanay", "No. Pumasok ka. I'll be fine, I promise. *cough* *cough*", "sfx:cough"));
+            outroLines.Add(new A3Line("Nanay", "No. Pumasok ka. I'll be fine, I promise. *cough* *cough*", "cough"));
             outroLines.Add(new A3Line(playerName, "...Opo."));
             outroLines.Add(new A3Line(playerName, "(If I do enough good today... she'll be okay. Right?)"));
         }
@@ -137,12 +138,12 @@ public class A3_Lroom_control : A3SceneBase
         yield return PlayLines(afterChoresLines);
 
         int picked = -1;
-        yield return WaitForChoice(beGoodChoiceText, enoughChoiceText, choice => picked = choice);
+        yield return WaitForChoice(helpChoiceText, perfectChoiceText, choice => picked = choice);
         const string question = "Nanay asked why you look like you're chasing something.";
-        PlayerDatabase.RecordChoice(WhyChasingChoiceId, question, picked == 0 ? beGoodChoiceText : enoughChoiceText, 0,
-            picked == 0 ? "be_good" : "enough");
+        PlayerDatabase.RecordChoice(WhyChasingChoiceId, question, picked == 0 ? helpChoiceText : perfectChoiceText, 0,
+            picked == 0 ? "help" : "go_right");
 
-        yield return PlayLines(picked == 0 ? beGoodLines : enoughLines);
+        yield return PlayLines(picked == 0 ? helpLines : perfectLines);
         yield return PlayLines(outroLines);
         yield return FadeOutAndLoad(nextSceneName, "A3_School", 1.2f, doorSound);
     }
@@ -154,8 +155,14 @@ public class A3_Lroom_control : A3SceneBase
         HideDialogueBox();
         if (nextButton != null) nextButton.SetActive(false);
 
+        // Nanay steps away to sit down, so she doesn't stand in front of the kalat.
+        yield return WalkOut(nanay, walkDuration * 1.5f);
+
         if (kalatItems.Count == 0)
+        {
+            yield return WalkIn(nanay, walkDuration * 1.5f);
             yield break;
+        }
 
         choresStarted = true;
         choresStartTime = Time.time;
@@ -184,10 +191,16 @@ public class A3_Lroom_control : A3SceneBase
         float seconds = Time.time - choresStartTime;
         PlayerDatabase.RecordAction(ChoresActionId, $"Cleaned the whole house before school ({kalatItems.Count} items in {seconds:0} seconds)", seconds, 1);
 
+        // The whole cleaning counts as one good deed, added when the last kalat is picked up.
         yield return new WaitForSeconds(0.3f);
         PlayEffect(victorySound);
+        AddDeed();
         yield return new WaitForSeconds(1f);
         if (progressText != null) progressText.gameObject.SetActive(false);
+
+        // Nanay comes back to see the clean house.
+        yield return WalkIn(nanay, walkDuration * 1.5f);
+        yield return new WaitForSeconds(0.3f);
     }
 
     // Called by ClickableUIItem when the player clicks a kalat.
@@ -199,7 +212,6 @@ public class A3_Lroom_control : A3SceneBase
         item.enabled = false;
         PlayCleaningSound();
         StartCoroutine(PopAway(item.transform));
-        AddDeed();
         UpdateProgress();
         StartCoroutine(PunchProgress());
 

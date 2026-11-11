@@ -47,11 +47,10 @@ public class A3_Broom_control : A3SceneBase
         morningLines.Add(new A3Line(playerName, "(\"When you fall short... what then?\")"));
         morningLines.Add(new A3Line(playerName, "(...Then I just won't fall short.)"));
         morningLines.Add(new A3Line(playerName, "(Today, I'll do more good than ever. And I'll count every single one.)", "counter"));
-        morningLines.Add(new A3Line(playerName, "(First... fix my bed. That's one.)", "deed"));
-        morningLines.Add(new A3Line("Nanay", "*cough* *cough*... Anak? Are you awake?", "sfx:cough"));
+        morningLines.Add(new A3Line("Nanay", "*cough* *cough*... Anak? Are you awake?", "cough"));
         morningLines.Add(new A3Line(playerName, "Opo, Nay! Coming!"));
         morningLines.Add(new A3Line(playerName, "(Her cough sounds worse today...)"));
-        morningLines.Add(new A3Line(playerName, "(Uniform. Fold my clothes. Two... three.)", "dress;deed;deed"));
+        morningLines.Add(new A3Line(playerName, "(I'd better hurry.)", "dress"));
     }
 
     protected override IEnumerator RunScene()

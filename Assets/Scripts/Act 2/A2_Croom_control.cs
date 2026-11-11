@@ -97,7 +97,7 @@ public class A2_Croom_control : MonoBehaviour
     public Image classmate1Image;
     public Image classmate2Image;
     [SerializeField] private string classmate1Name = "Elijah";
-    [SerializeField] private string classmate2Name = "Classmate";
+    [SerializeField] private string classmate2Name = "Perzifanie";
     [SerializeField] private string teacherName = "Ma'am";
     [SerializeField] private float walkInDuration = 1f;
     [SerializeField] private float sitDownDuration = 0.8f;

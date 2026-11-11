@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Act 3, classroom. The player keeps counting deeds during class, until Ma'am gets a phone call:
+// Act 3, classroom. The player can't focus (Nanay hasn't replied), until Ma'am gets a phone call:
 // Nanay collapsed at home. The friends tell the player to run.
 public class A3_Croom_control : A3SceneBase
 {
     [Header("Characters")]
     [SerializeField] private string classmate1Name = "Elijah";
-    [SerializeField] private string classmate2Name = "Classmate";
+    [SerializeField] private string classmate2Name = "Perzifanie";
     [SerializeField] private string teacherName = "Ma'am";
 
     [Header("Scene Transition")]
@@ -23,6 +23,10 @@ public class A3_Croom_control : A3SceneBase
 
     protected override void SetupScene()
     {
+        // The scene was saved with the old placeholder name.
+        if (string.IsNullOrEmpty(classmate2Name) || classmate2Name == "Classmate")
+            classmate2Name = "Perzifanie";
+
         A3Character elijah = AddCharacter("classmate1", classmate1Name);
         A3Character classmate = AddCharacter("classmate2", classmate2Name);
         SpreadIfStacked(elijah, classmate);
@@ -33,9 +37,9 @@ public class A3_Croom_control : A3SceneBase
         if (classLines.Count == 0)
         {
             classLines.Add(new A3Line(teacherName, "Okay class, open your books to page forty-two.", "show:classmate1;show:classmate2"));
-            classLines.Add(new A3Line(playerName, "(Focus. Take good notes so I can help Elijah later.)", "deed"));
+            classLines.Add(new A3Line(playerName, "(Focus... I can't focus. Why hasn't Nanay replied?)"));
             classLines.Add(new A3Line(classmate1Name, "(Psst... pre, you okay? You keep looking at your phone.)"));
-            classLines.Add(new A3Line(playerName, "(Still no reply from Nanay...)"));
+            classLines.Add(new A3Line(playerName, "(Still nothing...)"));
             classLines.Add(new A3Line(teacherName, "...Excuse me, class. I need to take this call.", "sfx:phone;pause:1.5"));
             classLines.Add(new A3Line(teacherName, "Hello? ...Yes, this is their teacher."));
             classLines.Add(new A3Line(teacherName, "..."));

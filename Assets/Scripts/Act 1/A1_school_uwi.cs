@@ -61,7 +61,7 @@ public class A1_school_uwi : MonoBehaviour
     public Image classmate2Image;
     public Image pulubiImage;
     [SerializeField] private string classmate1Name = "Elijah";
-    [SerializeField] private string classmate2Name = "Classmate";
+    [SerializeField] private string classmate2Name = "Perzifanie";
     [SerializeField] private string pulubiName = "Pulubi";
     [SerializeField] private float walkInDuration = 1f;
     [SerializeField] private float pulubiWalkDuration = 1.5f;

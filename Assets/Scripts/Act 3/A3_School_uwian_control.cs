@@ -13,8 +13,8 @@ public class A3_School_uwian_control : A3SceneBase
     [SerializeField] private string pulubiName = "Pulubi";
 
     [Header("Choice")]
-    [SerializeField] private string listenChoiceText = "Stop and listen";
-    [SerializeField] private string runChoiceText = "Run past him";
+    [SerializeField] private string stopChoiceText = "\"Po? What is it?\"";
+    [SerializeField] private string goChoiceText = "\"Sorry po, I have to go!\"";
 
     [Header("Running")]
     [SerializeField] private float runBobStrength = 6f;
@@ -57,6 +57,7 @@ public class A3_School_uwian_control : A3SceneBase
 
         if (listenLines.Count == 0)
         {
+            listenLines.Add(new A3Line(playerName, "Po? What is it?"));
             listenLines.Add(new A3Line(pulubiName, "I won't ask for anything, anak. I can see you're scared."));
         }
 
@@ -82,7 +83,7 @@ public class A3_School_uwian_control : A3SceneBase
 
         if (runLines.Count == 0)
         {
-            runLines.Add(new A3Line(playerName, "Sorry po!", "run"));
+            runLines.Add(new A3Line(playerName, "Sorry po, I have to go!", "run"));
             runLines.Add(new A3Line(pulubiName, "Anak! Hindi ka nag-iisa! Magtiwala ka sa Kanya!", "leaveslow:pulubi"));
             runLines.Add(new A3Line(playerName, "(Trust...? Trust who? I've been doing everything by myself...)"));
         }
@@ -96,10 +97,10 @@ public class A3_School_uwian_control : A3SceneBase
         yield return PlayLines(introLines);
 
         int picked = -1;
-        yield return WaitForChoice(listenChoiceText, runChoiceText, choice => picked = choice);
+        yield return WaitForChoice(stopChoiceText, goChoiceText, choice => picked = choice);
         const string question = "While you ran home, the pulubi stopped you and offered to pray for you.";
         PlayerDatabase.RecordChoice(PulubiListenChoiceId, question,
-            picked == 0 ? listenChoiceText : runChoiceText, 0,
+            picked == 0 ? stopChoiceText : goChoiceText, 0,
             picked == 0 ? "listened" : "ran");
 
         if (picked == 0)
