@@ -77,7 +77,7 @@ MonoBehaviour:
     m_path: Assets/Scenes/Act3_Scenes/A3_Broom.unity
     m_guid: 3cc29e6dc5a758b459f6b5a35c3bc870
   - m_enabled: 1
-    m_path: Assets/Scenes/Act3_Scenes/A3_Broom_uwi.unity
+    m_path: Assets/Scenes/Act3_Scenes/A3_Heaven.unity
     m_guid: 5cbef7abd8f40e343ae75ef7b5b48213
   - m_enabled: 1
     m_path: Assets/Scenes/Act3_Scenes/A3_Croom.unity
@@ -123,7 +123,7 @@ MonoBehaviour:
         m_BuildSubtarget: 0
         m_BuildSystem: 1
         m_ExportAsGoogleAndroidProject: 0
-        m_DebugSymbolLevel: 1
+        m_DebugSymbolLevel: 2
         m_DebugSymbolFormat: 5
         m_CurrentDeploymentTargetId: __builtin__target_default
         m_BuildType: 2
