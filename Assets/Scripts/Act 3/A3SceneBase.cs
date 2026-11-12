@@ -1213,9 +1213,10 @@ public abstract class A3SceneBase : MonoBehaviour
 
     private void CreateCounter(bool visible)
     {
-        // Top-right corner, so it never covers the "Kalat: x / y" progress on the top-left.
+        // Top-right, so it never covers the "Kalat: x / y" progress on the top-left,
+        // and left of the pause button that sits in the very corner.
         counterText = CreateText("GoodDeedsCounter", CounterLabel(), counterFontSize,
-            new Vector2(0.4f, 0.87f), new Vector2(0.98f, 0.98f), TextAlignmentOptions.TopRight);
+            new Vector2(0.35f, 0.87f), new Vector2(0.88f, 0.98f), TextAlignmentOptions.TopRight);
         if (counterText == null)
             return;
 

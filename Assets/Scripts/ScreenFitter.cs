@@ -86,10 +86,7 @@ public static class ScreenFitter
             if (canvas == null || !canvas.isRootCanvas || canvas.renderMode == RenderMode.WorldSpace)
                 continue;
 
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = DesignResolution;
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = match;
+            ConfigureScaler(scaler);
         }
 
         foreach (Camera sceneCamera in Object.FindObjectsByType<Camera>(FindObjectsSortMode.None))
@@ -118,6 +115,18 @@ public static class ScreenFitter
             if (video.renderMode == VideoRenderMode.CameraFarPlane || video.renderMode == VideoRenderMode.CameraNearPlane)
                 video.aspectRatio = VideoAspectRatio.FitOutside;
         }
+    }
+
+    // Sets a Canvas Scaler the same way as every scene's Canvas (used by the pause menu's own canvas too).
+    public static void ConfigureScaler(CanvasScaler scaler)
+    {
+        float screenAspect = (float)Screen.width / Mathf.Max(Screen.height, 1);
+        float designAspect = DesignResolution.x / DesignResolution.y;
+
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = DesignResolution;
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.matchWidthOrHeight = screenAspect >= designAspect ? 1f : 0f;
     }
 
     private static bool IsBackground(string objectName)
