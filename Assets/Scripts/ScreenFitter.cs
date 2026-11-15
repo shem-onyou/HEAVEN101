@@ -80,7 +80,7 @@ public static class ScreenFitter
         float designAspect = DesignResolution.x / DesignResolution.y;
         float match = screenAspect >= designAspect ? 1f : 0f;
 
-        foreach (CanvasScaler scaler in Object.FindObjectsByType<CanvasScaler>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        foreach (CanvasScaler scaler in Object.FindObjectsByType<CanvasScaler>(FindObjectsInactive.Include))
         {
             Canvas canvas = scaler.GetComponent<Canvas>();
             if (canvas == null || !canvas.isRootCanvas || canvas.renderMode == RenderMode.WorldSpace)
@@ -89,7 +89,7 @@ public static class ScreenFitter
             ConfigureScaler(scaler);
         }
 
-        foreach (Camera sceneCamera in Object.FindObjectsByType<Camera>(FindObjectsSortMode.None))
+        foreach (Camera sceneCamera in Object.FindObjectsByType<Camera>())
         {
             if (sceneCamera.clearFlags == CameraClearFlags.SolidColor || sceneCamera.clearFlags == CameraClearFlags.Skybox)
             {
@@ -98,19 +98,19 @@ public static class ScreenFitter
             }
         }
 
-        foreach (SpriteRenderer sprite in Object.FindObjectsByType<SpriteRenderer>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        foreach (SpriteRenderer sprite in Object.FindObjectsByType<SpriteRenderer>(FindObjectsInactive.Include))
         {
             if (IsBackground(sprite.gameObject.name))
                 CoverScreen(sprite, match);
         }
 
-        foreach (Image image in Object.FindObjectsByType<Image>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        foreach (Image image in Object.FindObjectsByType<Image>(FindObjectsInactive.Include))
         {
             if (IsBackground(image.gameObject.name))
                 CoverScreen(image, match);
         }
 
-        foreach (VideoPlayer video in Object.FindObjectsByType<VideoPlayer>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        foreach (VideoPlayer video in Object.FindObjectsByType<VideoPlayer>(FindObjectsInactive.Include))
         {
             if (video.renderMode == VideoRenderMode.CameraFarPlane || video.renderMode == VideoRenderMode.CameraNearPlane)
                 video.aspectRatio = VideoAspectRatio.FitOutside;
@@ -127,6 +127,17 @@ public static class ScreenFitter
         scaler.referenceResolution = DesignResolution;
         scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
         scaler.matchWidthOrHeight = screenAspect >= designAspect ? 1f : 0f;
+
+        // The Canvas Scaler only applies new settings right before the frame is drawn, which is after
+        // every Start(). Until then the canvas still has its old Constant Pixel Size: as wide as the
+        // screen in pixels (2400 on a phone, not 921.6). Scene scripts measure the canvas in Start()
+        // to place characters (the classmates' spacing, keeping them on screen), so on phones they
+        // were spread far apart, past the dialogue box. Turning the scaler off and on applies it now.
+        if (scaler.isActiveAndEnabled)
+        {
+            scaler.enabled = false;
+            scaler.enabled = true;
+        }
     }
 
     private static bool IsBackground(string objectName)

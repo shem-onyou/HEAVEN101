@@ -32,7 +32,7 @@ public class A3_Croom_control : A3SceneBase
         SpreadIfStacked(elijah, classmate);
 
         phoneSound = FindSound("phone", "ring");
-        heartbeatSound = FindSound("beat");
+        heartbeatSound = FindOrLoadSound("hearbeat", "beat");
 
         if (classLines.Count == 0)
         {

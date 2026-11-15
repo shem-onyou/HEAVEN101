@@ -93,6 +93,14 @@ public class A1_school_uwi : MonoBehaviour
     [Header("Typewriter Speed Settings")]
     [SerializeField] private float typingSpeed = 0.03f;
 
+    [Header("Sound Effects (Assets/Resources/Sounds)")]
+    [Tooltip("Char_bump, when Perzifanie bumps Elijah. Below 1 = lower and heavier, like a shoulder bump.")]
+    [SerializeField] private float bumpPitch = 0.8f;
+    [SerializeField] private float bumpVolume = 1f;
+    [Tooltip("giving_coin, when Perzifanie hands over coins (to the pulubi or to you).")]
+    [SerializeField] private float coinPitch = 1f;
+    [SerializeField] private float coinVolume = 1f;
+
     // Renamed from nextSceneName: the scene still had "A1_LivingRoom" (the morning room) saved there,
     // so a new field drops that old value and points to the after-school living room instead.
     [Header("Scene Transition")]
@@ -664,6 +672,9 @@ public class A1_school_uwi : MonoBehaviour
 
         yield return MoveImage(hitterTransform, classmate2.spotPosition, lungePosition, 0.12f);
 
+        // The moment her shoulder hits his.
+        SoundEffects.Play("Char_bump", bumpPitch, bumpVolume);
+
         Coroutine hitterBack = StartCoroutine(MoveImage(hitterTransform, lungePosition, classmate2.spotPosition, 0.25f));
         yield return MoveImage(targetTransform, classmate1.spotPosition, knockedPosition, 0.08f);
         yield return MoveImage(targetTransform, knockedPosition, classmate1.spotPosition, 0.2f);
@@ -684,6 +695,7 @@ public class A1_school_uwi : MonoBehaviour
             float towardPulubi = pulubi.spotPosition.x - classmate2.spotPosition.x;
             Vector2 handOverPosition = classmate2.spotPosition + new Vector2(towardPulubi * 0.4f, 0f);
             yield return MoveImage(giverTransform, classmate2.spotPosition, handOverPosition, 0.3f);
+            SoundEffects.Play("giving_coin", coinPitch, coinVolume);
             yield return new WaitForSeconds(0.4f);
             yield return MoveImage(giverTransform, handOverPosition, classmate2.spotPosition, 0.3f);
             yield break;
@@ -692,6 +704,7 @@ public class A1_school_uwi : MonoBehaviour
         Vector3 baseScale = giverTransform.localScale;
         Vector3 closerScale = baseScale * 1.12f;
         yield return ScaleImage(giverTransform, baseScale, closerScale, 0.2f);
+        SoundEffects.Play("giving_coin", coinPitch, coinVolume);
         yield return new WaitForSeconds(0.4f);
         yield return ScaleImage(giverTransform, closerScale, baseScale, 0.2f);
     }
@@ -892,6 +905,7 @@ public class A1_school_uwi : MonoBehaviour
         for (int i = 0; i <= totalCharacters; i++)
         {
             messageInputText.maxVisibleCharacters = i;
+            CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
             yield return new WaitForSeconds(typingSpeed);
         }
 
@@ -904,6 +918,7 @@ public class A1_school_uwi : MonoBehaviour
             StopCoroutine(typingCoroutine);
 
         messageInputText.maxVisibleCharacters = messageInputText.textInfo.characterCount;
+        CharacterVoice.Stop();
         isTyping = false;
     }
 

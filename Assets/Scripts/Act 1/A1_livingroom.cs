@@ -623,6 +623,7 @@ public class A1_livingroom : MonoBehaviour
         for (int i = 0; i <= totalCharacters; i++)
         {
             messageInputText.maxVisibleCharacters = i;
+            CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
             yield return new WaitForSeconds(typingSpeed);
         }
 
@@ -635,6 +636,7 @@ public class A1_livingroom : MonoBehaviour
             StopCoroutine(typingCoroutine);
 
         messageInputText.maxVisibleCharacters = messageInputText.textInfo.characterCount;
+        CharacterVoice.Stop();
         OnTypingFinished();
     }
 

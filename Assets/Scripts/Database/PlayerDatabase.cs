@@ -31,6 +31,9 @@ public class PlayerActionRecord
 [Serializable]
 public class PlayerSaveData
 {
+    // 1 = finishing an act moves the Continue point to the start of the next act (see PlayerDatabase.UpgradeOldSave).
+    public int saveVersion = PlayerDatabase.SaveVersion;
+    // The story scene to go back to (Continue, or pressing the act the player is in the middle of).
     public string currentScene = "";
     public List<string> visitedScenes = new List<string>();
     public List<PlayerChoiceRecord> choices = new List<PlayerChoiceRecord>();
@@ -44,9 +47,13 @@ public class PlayerSaveData
 public static class PlayerDatabase
 {
     private const string SaveFileName = "player_save.json";
+    public const int SaveVersion = 1;
 
     // Scenes that are menus, not story, so they are never saved as the Continue point.
     private static readonly string[] MenuScenes = { "Main Menu", "Acts" };
+
+    // The first scene of each act (index = act number). Keep in sync with the Acts screen's scene fields.
+    private static readonly string[] ActFirstScenes = { "", "Act One", "A2_Broom", "A3_Broom" };
 
     private static PlayerSaveData data;
 
@@ -96,20 +103,44 @@ public static class PlayerDatabase
         Save();
     }
 
-    // Clears answers, actions and progress. Finished acts stay unlocked.
-    public static void StartNewGame()
+    // The act the player is in the middle of (the act of the saved scene), or 0 if none.
+    public static int CurrentAct => ActOfScene(Data.currentScene);
+
+    public static string FirstSceneOfAct(int actNumber)
     {
-        List<int> completedActs = Data.completedActs;
-        data = new PlayerSaveData { completedActs = completedActs };
+        return actNumber > 0 && actNumber < ActFirstScenes.Length ? ActFirstScenes[actNumber] : "";
+    }
+
+    // "A2_School" -> 2, "Act One" -> 1, a menu or unknown scene -> 0.
+    public static int ActOfScene(string sceneName)
+    {
+        for (int act = 1; act < ActFirstScenes.Length; act++)
+        {
+            if (IsFromAct(sceneName, act))
+                return act;
+        }
+
+        return 0;
+    }
+
+    // Playing an act from the beginning: that act's answers and actions are erased (the other acts keep theirs).
+    // Finished acts stay unlocked.
+    public static void RestartAct(int actNumber)
+    {
+        Data.choices.RemoveAll(choice => IsFromAct(choice.sceneName, actNumber));
+        Data.actions.RemoveAll(action => IsFromAct(action.sceneName, actNumber));
         Save();
     }
 
+    // The act is over: Continue now leads to the start of the next act (nothing after the last act).
     public static void MarkActCompleted(int actNumber)
     {
-        if (Data.completedActs.Contains(actNumber))
-            return;
+        if (!Data.completedActs.Contains(actNumber))
+            Data.completedActs.Add(actNumber);
 
-        Data.completedActs.Add(actNumber);
+        if (ActOfScene(Data.currentScene) == actNumber)
+            Data.currentScene = FirstSceneOfAct(actNumber + 1);
+
         Save();
     }
 
@@ -362,11 +393,16 @@ public static class PlayerDatabase
     public static void Load()
     {
         data = null;
+        bool oldSave = false;
 
         try
         {
             if (File.Exists(SavePath))
-                data = JsonUtility.FromJson<PlayerSaveData>(File.ReadAllText(SavePath));
+            {
+                string json = File.ReadAllText(SavePath);
+                data = JsonUtility.FromJson<PlayerSaveData>(json);
+                oldSave = !json.Contains("\"saveVersion\"");
+            }
         }
         catch (Exception exception)
         {
@@ -375,6 +411,20 @@ public static class PlayerDatabase
 
         if (data == null)
             data = new PlayerSaveData();
+        else if (oldSave)
+            UpgradeOldSave();
+    }
+
+    // Saves made before saveVersion 1 kept the last scene of a finished act as the Continue point.
+    // They are moved forward the same way MarkActCompleted does now.
+    private static void UpgradeOldSave()
+    {
+        int act = ActOfScene(data.currentScene);
+        if (act > 0 && data.completedActs.Contains(act))
+            data.currentScene = FirstSceneOfAct(act + 1);
+
+        data.saveVersion = SaveVersion;
+        Save();
     }
 
     public static void DeleteSave()

@@ -58,7 +58,7 @@ public class A3_Lroom_control : A3SceneBase
         doorSound = FindSound("door");
 
         // The kalat stay in the room but can't be picked up until the chores start.
-        foreach (ClickableUIItem item in FindObjectsByType<ClickableUIItem>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        foreach (ClickableUIItem item in FindObjectsByType<ClickableUIItem>(FindObjectsInactive.Include))
         {
             if (!item.gameObject.scene.IsValid())
                 continue;

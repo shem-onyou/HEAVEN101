@@ -66,6 +66,11 @@ public class A1_classrm : MonoBehaviour
     public AudioSource sfxSource;
     public AudioClip teacherArrivesClip;
 
+    [Header("Shoulder Bump Sound (Assets/Resources/Sounds/Char_bump)")]
+    [Tooltip("Below 1 = lower and heavier, so it sounds like a shoulder bump.")]
+    [SerializeField] private float bumpPitch = 0.8f;
+    [SerializeField] private float bumpVolume = 1f;
+
     [Header("Sounds (auto-found by object or clip name if empty)")]
     [Tooltip("Classroom chatter, looped. Found by \"ambient\". Stays silent until it has a clip.")]
     [SerializeField] private AudioSource ambientAudioSource;
@@ -573,6 +578,9 @@ public class A1_classrm : MonoBehaviour
 
         yield return MoveImage(hitterTransform, classmate2SpotPosition, lungePosition, 0.12f);
 
+        // The moment her shoulder hits his.
+        SoundEffects.Play("Char_bump", bumpPitch, bumpVolume);
+
         Coroutine hitterBack = StartCoroutine(MoveImage(hitterTransform, lungePosition, classmate2SpotPosition, 0.25f));
         yield return MoveImage(targetTransform, classmate1SpotPosition, knockedPosition, 0.08f);
         yield return MoveImage(targetTransform, knockedPosition, classmate1SpotPosition, 0.2f);
@@ -811,6 +819,7 @@ public class A1_classrm : MonoBehaviour
         for (int i = 0; i <= totalCharacters; i++)
         {
             messageInputText.maxVisibleCharacters = i;
+            CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
             yield return new WaitForSeconds(typingSpeed);
         }
 
@@ -823,6 +832,7 @@ public class A1_classrm : MonoBehaviour
             StopCoroutine(typingCoroutine);
 
         messageInputText.maxVisibleCharacters = messageInputText.textInfo.characterCount;
+        CharacterVoice.Stop();
         isTyping = false;
     }
 

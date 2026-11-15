@@ -128,7 +128,10 @@ public static class ActResultsScreen
         label.alignment = TextAlignmentOptions.Center;
         label.color = Color.black;
 
-        return buttonObject.GetComponent<Button>();
+        // Same pixel look as the dialogue choice buttons.
+        Button button = buttonObject.GetComponent<Button>();
+        ChoiceButtonStyle.Apply(button);
+        return button;
     }
 
     private static void SetupButton(Button button, string label, UnityAction onClick)

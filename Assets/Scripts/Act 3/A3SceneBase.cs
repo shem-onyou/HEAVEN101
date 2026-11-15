@@ -12,6 +12,7 @@ using TMPro;
 //   "deed"            +1 on the Good Deeds counter
 //   "pause" / "pause:2"   wait with the dialogue box hidden
 //   "shake"           shake the screen          "sfx:door"       play a sound found by that word
+//   "buzz"            a text arrives: phone vibrate sound + the dialogue box buzzes
 //   "cough" / "cough:pulubi"   cough sound + the character shakes
 // A line with an empty message only runs its actions, then moves on by itself.
 [System.Serializable]
@@ -193,7 +194,7 @@ public abstract class A3SceneBase : MonoBehaviour
             if (anyCanvas != null) canvasTransform = anyCanvas.transform;
         }
 
-        foreach (SpriteRenderer sprite in FindObjectsByType<SpriteRenderer>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        foreach (SpriteRenderer sprite in FindObjectsByType<SpriteRenderer>(FindObjectsInactive.Include))
         {
             if (sprite.gameObject.name.StartsWith("BG_"))
             {
@@ -293,7 +294,7 @@ public abstract class A3SceneBase : MonoBehaviour
     // Finds an object anywhere in the scene (even inactive, even outside the Canvas).
     protected static GameObject FindSceneObject(string objectName)
     {
-        foreach (Transform sceneTransform in FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        foreach (Transform sceneTransform in FindObjectsByType<Transform>(FindObjectsInactive.Include))
         {
             if (sceneTransform.name == objectName && sceneTransform.gameObject.scene.IsValid())
                 return sceneTransform.gameObject;
@@ -307,7 +308,7 @@ public abstract class A3SceneBase : MonoBehaviour
     // Every sound copied from other scenes is stopped; each one waits for its moment.
     private void CollectSounds()
     {
-        foreach (AudioSource audioSource in FindObjectsByType<AudioSource>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        foreach (AudioSource audioSource in FindObjectsByType<AudioSource>(FindObjectsInactive.Include))
         {
             sceneSounds.Add(audioSource);
             originalVolumes[audioSource] = audioSource.volume;
@@ -334,6 +335,40 @@ public abstract class A3SceneBase : MonoBehaviour
         }
 
         return null;
+    }
+
+    // Sounds asked for by FindOrLoadSound that don't exist (warned about once per scene).
+    private readonly HashSet<string> missingSounds = new HashSet<string>();
+
+    // A sound placed in the scene (found by keyword) if there is one; otherwise Assets/Resources/Sounds/<resourceName>
+    // is put on this scene's own AudioSource, so it fades, stops and pauses with the scene's other sounds.
+    // The keywords must match the file name too, so the next call finds the loaded one.
+    protected AudioSource FindOrLoadSound(string resourceName, params string[] keywords)
+    {
+        AudioSource found = FindSound(keywords);
+        if (found != null && found.clip != null)
+            return found;
+
+        if (missingSounds.Contains(resourceName))
+            return null;
+
+        AudioClip clip = Resources.Load<AudioClip>("Sounds/" + resourceName);
+        if (clip == null)
+        {
+            missingSounds.Add(resourceName);
+            Debug.LogWarning($"{GetType().Name}: no \"{resourceName}\" sound. Add it as Assets/Resources/Sounds/{resourceName}.mp3 (or .wav).");
+            return null;
+        }
+
+        AudioSource source = gameObject.AddComponent<AudioSource>();
+        source.playOnAwake = false;
+        source.loop = false;
+        source.spatialBlend = 0f;
+        source.clip = clip;
+
+        sceneSounds.Add(source);
+        originalVolumes[source] = 1f;
+        return source;
     }
 
     private static bool SoundMatches(AudioSource audioSource, string keyword)
@@ -670,9 +705,12 @@ public abstract class A3SceneBase : MonoBehaviour
             case "sfx":
                 PlayEffect(FindSound(argument.ToLowerInvariant()));
                 break;
+            case "buzz":
+                yield return PhoneBuzz();
+                break;
             case "cough":
                 // "cough" = Nanay coughs; "cough:pulubi" = someone else.
-                PlayEffect(FindSound("cough"));
+                PlayEffect(FindOrLoadSound("cough", "cough"));
                 yield return CoughShake(GetCharacter(string.IsNullOrEmpty(argument) ? "Nanay" : argument));
                 break;
             case "hidebox":
@@ -739,6 +777,7 @@ public abstract class A3SceneBase : MonoBehaviour
         for (int i = 0; i <= totalCharacters; i++)
         {
             messageInputText.maxVisibleCharacters = i;
+            CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
             yield return new WaitForSeconds(speed);
         }
 
@@ -751,6 +790,7 @@ public abstract class A3SceneBase : MonoBehaviour
             StopCoroutine(typingCoroutine);
 
         messageInputText.maxVisibleCharacters = messageInputText.textInfo.characterCount;
+        CharacterVoice.Stop();
         isTyping = false;
     }
 
@@ -970,7 +1010,7 @@ public abstract class A3SceneBase : MonoBehaviour
 
     protected IEnumerator ShakeScreen(float strength, float duration)
     {
-        PlayEffect(FindSound("shake"));
+        PlayEffect(FindOrLoadSound("shake-sound", "shake"));
 
         Transform boxTransform = dialogueBox != null ? dialogueBox.transform : null;
         Vector3 boxRestPosition = boxTransform != null ? boxTransform.localPosition : Vector3.zero;
@@ -991,6 +1031,48 @@ public abstract class A3SceneBase : MonoBehaviour
 
         if (boxTransform != null) boxTransform.localPosition = boxRestPosition;
         if (backgroundTransform != null) backgroundTransform.localPosition = backgroundRestPosition;
+    }
+
+    // A text message arrives: the phone vibrates and the empty dialogue box buzzes for a moment.
+    // A vibrate/notification sound placed in the scene is used if there is one; otherwise
+    // Assets/Resources/Sounds/phone_vibrate.
+    protected IEnumerator PhoneBuzz()
+    {
+        AudioSource sceneVibrate = FindSound("vibrat", "notif");
+        if (sceneVibrate != null && sceneVibrate.clip != null)
+            PlayEffect(sceneVibrate);
+        else
+            SoundEffects.Play("phone_vibrate");
+
+        if (dialogueBox == null)
+        {
+            yield return new WaitForSeconds(0.4f);
+            yield break;
+        }
+
+        bool wasActive = dialogueBox.activeSelf;
+        dialogueBox.SetActive(true);
+        if (charNameText != null) charNameText.text = "";
+        if (messageInputText != null) messageInputText.maxVisibleCharacters = 0;
+
+        RectTransform boxTransform = dialogueBox.transform as RectTransform;
+        if (boxTransform != null)
+        {
+            Vector2 restPosition = boxTransform.anchoredPosition;
+            float elapsed = 0f;
+            const float buzzDuration = 0.45f;
+            while (elapsed < buzzDuration)
+            {
+                elapsed += Time.deltaTime;
+                boxTransform.anchoredPosition = restPosition + new Vector2(Mathf.Sin(elapsed * 90f) * 5f, 0f);
+                yield return null;
+            }
+
+            boxTransform.anchoredPosition = restPosition;
+        }
+
+        if (!wasActive)
+            dialogueBox.SetActive(false);
     }
 
     // Tints the background SpriteRenderer (multiplied with its original color).
@@ -1302,6 +1384,9 @@ public abstract class A3SceneBase : MonoBehaviour
         counterShouldShow = false;
         if (counterText == null)
             yield break;
+
+        // The glitching numbers crackle.
+        PlayEffect(FindOrLoadSound("glitch_sound", "glitch"));
 
         Transform counterTransform = counterText.transform;
         Vector3 restPosition = counterTransform.localPosition;

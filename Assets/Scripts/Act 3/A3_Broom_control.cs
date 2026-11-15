@@ -35,7 +35,7 @@ public class A3_Broom_control : A3SceneBase
 
         fanSound = FindSound("fan");
         birdsSound = FindSound("bird");
-        heartbeatSound = FindSound("beat");
+        heartbeatSound = FindOrLoadSound("hearbeat", "beat");
         clothesSound = FindSound("cloth");
         doorSound = FindSound("door");
 

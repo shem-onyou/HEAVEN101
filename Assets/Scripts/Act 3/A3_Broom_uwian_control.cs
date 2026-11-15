@@ -15,7 +15,7 @@ using TMPro;
 //  4. God: "That is all I ever wanted to hear... Your Nanay is in My hands."
 //  5. "Wake up, child. And this time... rest." Morning in the dark.
 //  6. Ephesians 2:8-9, the credits, then every good deed of the game appears and is crossed out:
-//     "Saved by grace, through faith."
+//     "You are not saved by your good works, but by grace, through faith."
 // No points anywhere: the ending is the same for every player.
 public class A3_Broom_uwian_control : A3SceneBase
 {
@@ -60,7 +60,11 @@ public class A3_Broom_uwian_control : A3SceneBase
 
     [Header("Final Summary (every good deed, crossed out)")]
     [SerializeField] private string summaryTitle = "Your Good Deeds";
-    [SerializeField] private string summaryFinalLine = "Saved by grace, through faith.";
+    // Renamed from summaryFinalLine: the scene had the old "Saved by grace, through faith." saved there,
+    // so a new field drops that value and uses this clearer message instead.
+    [Tooltip("Shown in gold under the crossed-out deeds. Press Enter in the box for a new line.")]
+    [TextArea(2, 4)]
+    [SerializeField] private string closingMessage = "You are not saved by your good works,\nbut by grace, through faith.";
     [SerializeField] private float summaryLineDelay = 0.25f;
     [SerializeField] private float strikeDelay = 0.35f;
 
@@ -103,7 +107,7 @@ public class A3_Broom_uwian_control : A3SceneBase
     // It is switched off before it starts, so only this script runs the scene.
     private void Awake()
     {
-        foreach (SceneController oldController in FindObjectsByType<SceneController>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        foreach (SceneController oldController in FindObjectsByType<SceneController>(FindObjectsInactive.Include))
             oldController.enabled = false;
     }
 
@@ -129,7 +133,7 @@ public class A3_Broom_uwian_control : A3SceneBase
             ambientAudioSource = null;
         teleportSound = FindSound("teleport");
         birdsSound = FindSound("bird");
-        heartbeatSound = FindSound("beat");
+        heartbeatSound = FindOrLoadSound("hearbeat", "beat");
         peaceMusic = FindSound("piano", "peace");
 
         FillDefaultLines();
@@ -208,7 +212,7 @@ public class A3_Broom_uwian_control : A3SceneBase
             morningLines.Add(new A3Line("Nanay", "You stayed up with me the whole night, didn't you?"));
             morningLines.Add(new A3Line("Nanay", "Salamat, anak. But next time, rest too, ha? You don't have to carry everything alone."));
             morningLines.Add(new A3Line(playerName, "...Opo, Nay."));
-            morningLines.Add(new A3Line("Elijah (text)", "pre kumusta si tita? we prayed for her kagabi", "sfx:phone"));
+            morningLines.Add(new A3Line("Elijah (text)", "pre kumusta si tita? we prayed for her kagabi", "buzz"));
             morningLines.Add(new A3Line(playerName, "(...)"));
             morningLines.Add(new A3Line(playerName, "(For the first time in a long time...)"));
             morningLines.Add(new A3Line(playerName, "(I'm not counting.)"));
@@ -646,7 +650,12 @@ public class A3_Broom_uwian_control : A3SceneBase
 
         yield return new WaitForSeconds(1.5f);
 
-        TMP_Text finalLine = CreateText("SummaryFinalLine", summaryFinalLine, 32f, new Vector2(0.08f, 0.26f), new Vector2(0.92f, 0.35f));
+        // Two lines between the list and the Main Menu button; shrinks a little if it needs to.
+        TMP_Text finalLine = CreateText("SummaryFinalLine", closingMessage, 30f, new Vector2(0.06f, 0.2f), new Vector2(0.94f, 0.355f));
+        finalLine.enableAutoSizing = true;
+        finalLine.fontSizeMin = 18f;
+        finalLine.fontSizeMax = 30f;
+        finalLine.lineSpacing = 4f;
         finalLine.color = new Color(1f, 0.88f, 0.55f, 0f);
         yield return FadeTextAlpha(finalLine, 0f, 1f, 2.5f);
         yield return new WaitForSeconds(2f);

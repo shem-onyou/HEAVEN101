@@ -284,7 +284,7 @@ public class A2_Lroom_uwian : MonoBehaviour
 
         if (cantPayBackLines.Count == 0)
         {
-            cantPayBackLines.Add(new A2LroomUwiDialogueLine(elijahTextName, "and sorry... i can't pay you back tomorrow. he took my allowance"));
+            cantPayBackLines.Add(new A2LroomUwiDialogueLine(elijahTextName, "and sorry... i can't pay you back tomorrow. he took my allowance", A2LroomUwiAction.PhoneBuzz));
         }
 
         if (dilemmaLines.Count == 0)
@@ -803,10 +803,14 @@ public class A2_Lroom_uwian : MonoBehaviour
         yield return new WaitForSeconds(0.8f);
     }
 
-    // The phone buzzes: a sound (if there is one) and the dialogue box shakes a little.
+    // The phone buzzes: the vibrate sound and the dialogue box shakes a little.
+    // A phone sound placed in the scene is used if there is one; otherwise Assets/Resources/Sounds/phone_vibrate.
     private IEnumerator PhoneBuzz()
     {
-        PlayEffect(phoneAudioSource);
+        if (phoneAudioSource != null && phoneAudioSource.clip != null)
+            PlayEffect(phoneAudioSource);
+        else
+            SoundEffects.Play("phone_vibrate");
 
         if (dialogueBox == null)
         {
@@ -1048,6 +1052,7 @@ public class A2_Lroom_uwian : MonoBehaviour
         for (int i = 0; i <= totalCharacters; i++)
         {
             messageInputText.maxVisibleCharacters = i;
+            CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
             yield return new WaitForSeconds(speed);
         }
 
@@ -1060,6 +1065,7 @@ public class A2_Lroom_uwian : MonoBehaviour
             StopCoroutine(typingCoroutine);
 
         messageInputText.maxVisibleCharacters = messageInputText.textInfo.characterCount;
+        CharacterVoice.Stop();
         isTyping = false;
     }
 

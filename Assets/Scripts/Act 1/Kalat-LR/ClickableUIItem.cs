@@ -1,14 +1,12 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+// A piece of kalat (clutter) in the living room clean-up. Tapping it tells the scene's controller.
+// The file name must stay ClickableUIItem.cs (the same as the class) so Unity can load it on every scene.
 public class ClickableUIItem : MonoBehaviour, IPointerClickHandler
 {
-    // Implementation of IPointerClickHandler interface
     public void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log("UI Item Clicked: " + gameObject.name);
-        
-        // Call your custom function here
         OnItemClicked();
     }
 

@@ -751,7 +751,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: c966987b673a687449ecdebb034ac691, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -1269,7 +1269,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 3e012257654f9344682710fed82b628f, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -1715,12 +1715,7 @@ MonoBehaviour:
   clickAudioSource: {fileID: 1308616166}
   doorAudioSource: {fileID: 1778069211}
   stairsAudioSource: {fileID: 847971915}
-  actCompleteAudioSource: {fileID: 591993094}
-  nextSceneName: 
-  actNumber: 1
-  actResultsTitle: Act 1 Complete
-  mainMenuSceneName: Main Menu
-  nextActSceneName: 
+  bedroomSceneName: A1_BR_lastscene
   introLines: []
   gaveMoneyLines: []
   refusedLines: []
@@ -2004,7 +1999,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: d1574bc8795bbbc4b9d975d929b8b2fa, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -2133,7 +2128,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 8009e5e15cb666f4a9bc4cfdf91e761f, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 0.75
   m_Pitch: 1
   Loop: 1
@@ -2519,7 +2514,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 559a4f721b40f3a48855f48e61030474, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0

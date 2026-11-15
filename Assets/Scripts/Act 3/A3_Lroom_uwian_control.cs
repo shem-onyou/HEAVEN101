@@ -43,6 +43,16 @@ public class A3_Lroom_uwian_control : A3SceneBase
     [SerializeField] private float prayerFontSize = 34f;
     [SerializeField] private float prayerTypingSpeed = 0.07f;
 
+    [Header("Night Sounds (Assets/Resources/Sounds, unless one is placed in the scene)")]
+    [Tooltip("tik-tak_sound: the wall clock, from \"Hours later...\" until the player falls asleep.")]
+    [SerializeField] private float clockVolume = 0.35f;
+    [Tooltip("hearbeat: during the prayer.")]
+    [SerializeField] private float heartbeatVolume = 0.5f;
+    [Tooltip("boom_sound: the hit when the player cries out.")]
+    [SerializeField] private float boomVolume = 0.9f;
+    [Tooltip("The heartbeat slows down to this pitch as the player falls asleep.")]
+    [SerializeField] private float sleepyHeartbeatPitch = 0.75f;
+
     // Renamed from nextSceneName: the scene had "A3_Broom_uwi" saved there, which is now A3_Heaven.
     [Header("Scene Transition")]
     [SerializeField] private string heavenSceneName = "A3_Heaven";
@@ -54,6 +64,8 @@ public class A3_Lroom_uwian_control : A3SceneBase
     private A3Character nanay;
     private AudioSource doorSound;
     private AudioSource heartbeatSound;
+    private AudioSource clockSound;
+    private AudioSource boomSound;
 
     protected override void SetupScene()
     {
@@ -62,13 +74,16 @@ public class A3_Lroom_uwian_control : A3SceneBase
             nanay.baseColor = Multiply(nanay.baseColor, nanayPaleTint);
 
         // Copied from the morning living room: no kalat tonight.
-        foreach (ClickableUIItem kalat in FindObjectsByType<ClickableUIItem>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        foreach (ClickableUIItem kalat in FindObjectsByType<ClickableUIItem>(FindObjectsInactive.Include))
             kalat.gameObject.SetActive(false);
         GameObject progress = FindSceneObject("Kalat_progress");
         if (progress != null) progress.SetActive(false);
 
         doorSound = FindSound("door");
-        heartbeatSound = FindSound("beat");
+        heartbeatSound = FindOrLoadSound("hearbeat", "beat");
+        clockSound = FindOrLoadSound("tik-tak_sound", "tik");
+        boomSound = FindOrLoadSound("boom_sound", "boom");
+        if (boomSound != null) boomSound.volume = boomVolume;
 
         FillDefaultLines();
     }
@@ -127,6 +142,10 @@ public class A3_Lroom_uwian_control : A3SceneBase
         PlayerDatabase.RecordAction(CareActionId, "Took care of Nanay all night", 1f, 1);
 
         yield return FadeToBlack(1f);
+
+        // Time passes: the wall clock ticks in the dark, and the house gets quieter for the night.
+        StartLoop(clockSound, clockVolume, 1f);
+        if (ambientAudioSource != null) StartCoroutine(FadeAudio(ambientAudioSource, OriginalVolume(ambientAudioSource) * 0.5f, 1.5f));
         yield return ShowCenterText("Hours later...", 36f, 1.5f);
         SetBackgroundTint(nightTint);
         yield return FadeOutCover(1.5f);
@@ -140,11 +159,11 @@ public class A3_Lroom_uwian_control : A3SceneBase
         HideDialogueBox();
         if (nextButton != null) nextButton.SetActive(false);
 
-        // The room goes cold and dark; only the heartbeat is left.
+        // The room goes cold and dark; only the clock and the heartbeat are left.
         TintAllCharacters(new Color(0.35f, 0.35f, 0.45f, 1f));
         StartCoroutine(TintBackground(prayerColdTint, 2.5f));
         if (ambientAudioSource != null) StartCoroutine(FadeAudio(ambientAudioSource, OriginalVolume(ambientAudioSource) * 0.3f, 2f));
-        StartLoop(heartbeatSound, 0.5f, 2f);
+        StartLoop(heartbeatSound, heartbeatVolume, 2f);
         yield return new WaitForSeconds(2f);
 
         // 1. Offering their own good deeds.
@@ -190,7 +209,7 @@ public class A3_Lroom_uwian_control : A3SceneBase
         yield return TypeOnScreen(line, prayerTypingSpeed);
         yield return new WaitForSeconds(1.2f);
 
-        PlayEffect(FindSound("cough"));
+        PlayEffect(FindOrLoadSound("cough", "cough"));
         StartCoroutine(CoughShake(nanay, 2, 4f));
         StartCoroutine(FlickerCounter());
         yield return new WaitForSeconds(0.8f);
@@ -207,6 +226,8 @@ public class A3_Lroom_uwian_control : A3SceneBase
         line.alpha = 1f;
         line.maxVisibleCharacters = 99999;
 
+        // The cry hits like a blow: a deep boom with the shake.
+        PlayEffect(boomSound);
         StartCoroutine(ShakeScreen(16f, 0.7f));
         yield return BreakCounter();
         yield return Dissolve(line, 1.2f);
@@ -227,11 +248,30 @@ public class A3_Lroom_uwian_control : A3SceneBase
         yield return TypeOnScreen(whisper, prayerTypingSpeed * 2f);
         yield return new WaitForSeconds(2f);
 
-        if (heartbeatSound != null) StartCoroutine(FadeAudio(heartbeatSound, 0f, 4f));
+        // Falling asleep: the heartbeat slows and fades, and the clock fades away with it.
+        if (heartbeatSound != null)
+        {
+            StartCoroutine(SlidePitch(heartbeatSound, sleepyHeartbeatPitch, 4f));
+            StartCoroutine(FadeAudio(heartbeatSound, 0f, 4f));
+        }
+        if (clockSound != null) StartCoroutine(FadeAudio(clockSound, 0f, 5f));
         TintAllCharacters(new Color(0.15f, 0.15f, 0.22f, 1f));
         StartCoroutine(FadeTextAlpha(whisper, whisper.alpha, 0f, 3f));
         yield return TintBackground(exhaustedTint, 4f);
         yield return new WaitForSeconds(1.5f);
+    }
+
+    // Slowly changes how fast (and how low) a sound plays, e.g. a heartbeat slowing down.
+    private static IEnumerator SlidePitch(AudioSource audioSource, float toPitch, float duration)
+    {
+        float fromPitch = audioSource.pitch;
+        float elapsed = 0f;
+        while (elapsed < duration && audioSource != null)
+        {
+            elapsed += Time.deltaTime;
+            audioSource.pitch = Mathf.Lerp(fromPitch, toPitch, Mathf.Clamp01(elapsed / duration));
+            yield return null;
+        }
     }
 
     // Rows go from top (0) to bottom (2) in the upper half of the screen.

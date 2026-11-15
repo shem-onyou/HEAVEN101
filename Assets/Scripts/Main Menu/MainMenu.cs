@@ -75,6 +75,10 @@ public class MainMenu : MonoBehaviour
         FindMusic();
         StartMenuMusic();
 
+        // Every menu button clicks when pressed (a locked Continue button stays silent).
+        foreach (Button button in new[] { startButton, exitButton, continueButton, aboutButton, aboutBackButton })
+            ButtonClickSound.AddTo(button);
+
         if (startButton != null)
         {
             startButton.onClick.RemoveListener(StartGame);
@@ -94,7 +98,7 @@ public class MainMenu : MonoBehaviour
         if (continueButton != null)
         {
             // Only clickable when there is saved progress to go back to.
-            continueButton.interactable = PlayerDatabase.HasSavedProgress;
+            continueButton.interactable = CanContinue();
             continueButton.onClick.RemoveListener(ContinueGame);
             continueButton.onClick.AddListener(ContinueGame);
         }
@@ -387,7 +391,8 @@ public class MainMenu : MonoBehaviour
 
     // ------------------------------------------------------------------ scenes
 
-    // Goes to the Acts screen. A new game (clearing old answers) starts when Act 1 is picked there.
+    // Goes to the Acts screen. There, the act the player is in the middle of continues where they left off,
+    // and a finished act asks before starting over (see Acts.cs).
     public void StartGame()
     {
         SceneManager.LoadScene(actsSceneName);
@@ -395,13 +400,27 @@ public class MainMenu : MonoBehaviour
 
     public void ContinueGame()
     {
-        if (PlayerDatabase.HasSavedProgress)
+        if (CanContinue())
             SceneManager.LoadScene(PlayerDatabase.Data.currentScene);
+    }
+
+    // There is a saved place, and its scene is still in the build (an old save could name a removed scene).
+    private static bool CanContinue()
+    {
+        return PlayerDatabase.HasSavedProgress && Application.CanStreamedLevelBeLoaded(PlayerDatabase.Data.currentScene);
     }
 
     // Closes the game. Application.Quit does nothing inside the Editor, so Play mode is stopped there instead.
     public void ExitGame()
     {
+        StartCoroutine(QuitAfterClick());
+    }
+
+    // Waits a moment so the click sound is heard before the game closes.
+    private IEnumerator QuitAfterClick()
+    {
+        yield return new WaitForSecondsRealtime(Mathf.Min(ButtonClickSound.Length, 0.4f));
+
         Application.Quit();
 
 #if UNITY_EDITOR

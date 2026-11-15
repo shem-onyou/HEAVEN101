@@ -146,12 +146,13 @@ public class PauseMenu : MonoBehaviour
         else
             Debug.LogWarning("PauseMenu: no pause panel was found. Drag it into the Pause Panel field.");
 
-        Debug.Log($"PauseMenu ready: pause button = {NameOf(pauseButton)}, panel = {(pausePanel != null ? pausePanel.name : "none")}, " +
-                  $"continue = {NameOf(continueButton)}, menu = {NameOf(menuButton)}");
-
         Bind(pauseButton, OpenPause, "pause button");
         Bind(continueButton, ClosePause, "Continue button");
         Bind(menuButton, GoToMainMenu, "Menu button");
+
+        // The click is played inside OpenPause / ClosePause / GoToMainMenu (not added to the buttons),
+        // because the backup check in Update calls them directly too.
+        ButtonClickSound.Preload();
     }
 
     private void FindParts()
@@ -269,11 +270,6 @@ public class PauseMenu : MonoBehaviour
         Image panelImage = pausePanel.GetComponent<Image>();
         if (panelImage != null)
             panelImage.enabled = false;
-    }
-
-    private static string NameOf(Button button)
-    {
-        return button != null ? button.gameObject.name : "none";
     }
 
     // A button's name plus its label, e.g. "button (1) continue".
@@ -411,7 +407,7 @@ public class PauseMenu : MonoBehaviour
             return;
 
         lastActionFrame = Time.frameCount;
-        Debug.Log("PauseMenu: paused.");
+        ButtonClickSound.Play();
 
         if (dimLayer != null) dimLayer.SetActive(true);
         pausePanel.SetActive(true);
@@ -431,6 +427,7 @@ public class PauseMenu : MonoBehaviour
             return;
 
         lastActionFrame = Time.frameCount;
+        ButtonClickSound.Play();
         if (pausePanel != null) pausePanel.SetActive(false);
         if (dimLayer != null) dimLayer.SetActive(false);
         if (pauseButton != null) pauseButton.gameObject.SetActive(true);
@@ -439,6 +436,12 @@ public class PauseMenu : MonoBehaviour
 
     public void GoToMainMenu()
     {
+        // The button and the backup check can both fire on the same tap; only act once per frame.
+        if (lastActionFrame == Time.frameCount)
+            return;
+
+        lastActionFrame = Time.frameCount;
+        ButtonClickSound.Play();
         Resume();
         SceneManager.LoadScene(string.IsNullOrEmpty(mainMenuSceneName) ? "Main Menu" : mainMenuSceneName);
     }
