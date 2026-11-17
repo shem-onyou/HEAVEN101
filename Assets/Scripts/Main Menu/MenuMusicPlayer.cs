@@ -3,18 +3,32 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// The Main Menu music, kept alive across the menu screens (Main Menu and Acts) so it never cuts
-// when the player presses Start or Back. It fades out and removes itself once an act begins.
+// The Main Menu ambience. It plays only on the Main Menu: going to any other scene (the Acts screen or an act)
+// fades it out and removes it. Coming back to the Main Menu starts it again.
 // Created by MainMenu; nothing needs to be attached to any object.
 //
-// What plays: the opening sound once (fading out at 7 seconds), then the angelic voices take turns
+// What plays: the opening sound (fading out at 7 seconds), then the angelic voices take turns
 // (1, 2, 1, 2...), only the first 10 seconds of each, crossfading so it sounds like one piece.
+// The opening plays once per launch of the game; coming back to the Main Menu later (from Acts or from an act),
+// the angelic voices simply fade back in.
 public class MenuMusicPlayer : MonoBehaviour
 {
     public static MenuMusicPlayer Instance { get; private set; }
 
-    [Tooltip("Scenes where the menu music keeps playing. Any other scene (an act) fades it out.")]
-    public string[] menuSceneNames = { "Main Menu", "Acts" };
+    // The opening sound already played since the game was launched.
+    private static bool openingPlayed;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics()
+    {
+        Instance = null;
+        openingPlayed = false;
+    }
+
+    [Tooltip("Scenes where the menu music keeps playing. Any other scene fades it out.")]
+    public string[] menuSceneNames = { "Main Menu" };
+    [Tooltip("Coming back to the Main Menu (no opening): how long the angelic voices take to fade in.")]
+    public float returnFadeInDuration = 2.5f;
     public bool waitForOpeningToFinish = true;
     public float openingFadeStartTime = 7f;
     public float openingFadeOutDuration = 3f;
@@ -81,6 +95,22 @@ public class MenuMusicPlayer : MonoBehaviour
             Instance = null;
     }
 
+    // True while it is fading out on its way to being removed (the player left the Main Menu).
+    public bool IsLeaving => leaving;
+
+    // Removes it right away (the Main Menu opened again before the fade-out was over: a fresh player takes over).
+    public void StopNow()
+    {
+        leaving = true;
+        StopAllCoroutines();
+        foreach (AudioSource player in GetComponents<AudioSource>())
+            player.Stop();
+
+        if (Instance == this)
+            Instance = null;
+        Destroy(gameObject);
+    }
+
     // Still in the menus: keep playing. An act started: fade out and go away.
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
@@ -106,8 +136,13 @@ public class MenuMusicPlayer : MonoBehaviour
 
     private IEnumerator PlayMusic()
     {
-        if (openingPlayer != null)
+        // Back on the Main Menu after the opening already played: straight to the voices, fading in.
+        bool skipOpening = openingPlayed && voiceClips.Count > 0;
+        float firstFadeIn = skipOpening ? returnFadeInDuration : firstVoiceFadeInDuration;
+
+        if (openingPlayer != null && !skipOpening)
         {
+            openingPlayed = true;
             openingPlayer.volume = openingVolume;
             openingPlayer.Play();
 
@@ -130,7 +165,7 @@ public class MenuMusicPlayer : MonoBehaviour
 
         // ...while the first angelic voice slowly grows louder underneath it.
         AudioSource current = voicePlayers[playerIndex];
-        StartVoice(current, voiceIndex, firstVoiceFadeInDuration);
+        StartVoice(current, voiceIndex, firstFadeIn);
         if (openingPlayer != null && openingPlayer.isPlaying)
             StartCoroutine(FadeVolume(openingPlayer, 0f, openingFadeOutDuration, stopAtEnd: true));
 

@@ -92,7 +92,7 @@ public class A3_Lroom_uwian_control : A3SceneBase
     {
         if (arriveLines.Count == 0)
         {
-            arriveLines.Add(new A3Line(playerName, "NANAY!"));
+            arriveLines.Add(new A3Line(playerName, "<link=\"shake\">NANAY!</link>"));
             arriveLines.Add(new A3Line(nanayName, "A-anak... I'm okay... *cough* *cough*", "cough"));
             arriveLines.Add(new A3Line(neighborName, "Ay, salamat at nandito ka na. I found her on the floor."));
             arriveLines.Add(new A3Line(neighborName, "Her fever is very high. Give her medicine and let her rest. I'll come back later, ha?"));
@@ -294,7 +294,7 @@ public class A3_Lroom_uwian_control : A3SceneBase
         for (int i = 0; i <= total; i++)
         {
             text.maxVisibleCharacters = i;
-            yield return new WaitForSeconds(speed);
+            yield return new WaitForSeconds(DialoguePacing.Delay(text, i, speed));
         }
     }
 

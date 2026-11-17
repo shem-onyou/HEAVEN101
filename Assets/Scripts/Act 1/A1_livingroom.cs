@@ -502,6 +502,11 @@ public class A1_livingroom : MonoBehaviour
         nanayTransform.anchoredPosition = startPosition;
         nanayCharacter.SetActive(true);
 
+        // Walking out: she turns to face the right edge first.
+        Quaternion restRotation = nanayTransform.localRotation;
+        if (!walkingIn)
+            yield return CharacterTurn.FaceExit(nanayTransform, 1f);
+
         float duration = Mathf.Max(nanayWalkDuration, 0.01f);
         float elapsed = 0f;
         while (elapsed < duration)
@@ -514,7 +519,11 @@ public class A1_livingroom : MonoBehaviour
 
         nanayTransform.anchoredPosition = targetPosition;
         if (!walkingIn)
+        {
             nanayCharacter.SetActive(false);
+            // Back to how she stood, so she walks in facing the same way next time.
+            nanayTransform.localRotation = restRotation;
+        }
     }
 
     private void DisplayLivingRoomLine(A1LivingRoomDialogueLine line)
@@ -624,7 +633,7 @@ public class A1_livingroom : MonoBehaviour
         {
             messageInputText.maxVisibleCharacters = i;
             CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
-            yield return new WaitForSeconds(typingSpeed);
+            yield return new WaitForSeconds(DialoguePacing.Delay(messageInputText, i, typingSpeed));
         }
 
         OnTypingFinished();

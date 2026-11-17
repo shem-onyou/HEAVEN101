@@ -877,7 +877,7 @@ public class A2_Broom_uwian : MonoBehaviour
         {
             messageInputText.maxVisibleCharacters = i;
             CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
-            yield return new WaitForSeconds(speed);
+            yield return new WaitForSeconds(DialoguePacing.Delay(messageInputText, i, speed));
         }
 
         isTyping = false;

@@ -78,6 +78,9 @@ public class A2_School_uwian_scr : MonoBehaviour
     [SerializeField] private float walkInDuration = 1f;
     [SerializeField] private float pulubiWalkDuration = 1.5f;
     [SerializeField] private float pulubiSlowWalkDuration = 3f;
+    [Tooltip("Elijah and Perzifanie stand together on the right side, past the pulubi's spot, so they never cover him " +
+             "(and Perzifanie faces the same way as Elijah). Off = the old spread around the middle.")]
+    [SerializeField] private bool classmatesRightOfPulubi = true;
     [SerializeField] private bool spreadClassmates = true;
     [Tooltip("Gap between the two classmates, as a fraction of the canvas width.")]
     [Range(0f, 1f)] [SerializeField] private float classmateSpacing = 0.3f;
@@ -162,7 +165,8 @@ public class A2_School_uwian_scr : MonoBehaviour
         pulubi = CreateCharacter(pulubiImage, pulubiName);
         characters = new[] { classmate1, classmate2, pulubi };
 
-        if (spreadClassmates)
+        bool placedOnRight = classmatesRightOfPulubi && PlaceClassmatesRightOfPulubi();
+        if (!placedOnRight && spreadClassmates)
             SpreadClassmates();
 
         KeepOnScreen(classmate1, classmate2);
@@ -301,6 +305,59 @@ public class A2_School_uwian_scr : MonoBehaviour
         classmate2.spotPosition = middle + new Vector2(halfGap, 0f);
     }
 
+    // Elijah and Perzifanie stand together on the right: Elijah just past the pulubi's spot, Perzifanie near the
+    // right edge, overlapping a little like friends standing side by side. The pulubi keeps his spot on the left,
+    // so nobody covers him when he comes. Perzifanie faces the same way as Elijah.
+    // Returns false (nothing changed) if one of the three is missing.
+    private bool PlaceClassmatesRightOfPulubi()
+    {
+        if (classmate1.image == null || classmate2.image == null || pulubi.image == null)
+            return false;
+
+        RectTransform parentTransform = classmate1.image.rectTransform.parent as RectTransform;
+        if (parentTransform == null)
+            return false;
+
+        classmate2.image.rectTransform.localRotation = classmate1.image.rectTransform.localRotation;
+
+        const float edgeMargin = 10f;
+        float halfScreen = parentTransform.rect.width * 0.5f;
+        float elijahHalf = VisibleHalfWidth(classmate1.image);
+        float perzifanieHalf = VisibleHalfWidth(classmate2.image);
+
+        float left = pulubi.spotPosition.x + VisibleHalfWidth(pulubi.image) + edgeMargin;
+        float elijahX = left + elijahHalf;
+        float perzifanieX = Mathf.Max(halfScreen - edgeMargin - perzifanieHalf, elijahX);
+
+        // On very wide screens they would drift apart: keep them close together (around the same middle).
+        float closest = (elijahHalf + perzifanieHalf) * 0.95f;
+        if (perzifanieX - elijahX > closest)
+        {
+            float middle = (elijahX + perzifanieX) * 0.5f;
+            elijahX = middle - closest * 0.5f;
+            perzifanieX = middle + closest * 0.5f;
+        }
+
+        classmate1.spotPosition = new Vector2(elijahX, classmate1.spotPosition.y);
+        classmate2.spotPosition = new Vector2(perzifanieX, classmate2.spotPosition.y);
+        return true;
+    }
+
+    // Half the width of what is drawn: with Preserve Aspect on (SceneAtmosphere turns it on), the drawing is
+    // narrower than its box.
+    private static float VisibleHalfWidth(Image image)
+    {
+        RectTransform imageTransform = image.rectTransform;
+        float width = imageTransform.rect.width * Mathf.Abs(imageTransform.localScale.x);
+        if (image.preserveAspect && image.sprite != null && image.sprite.rect.height > 0f)
+        {
+            float height = imageTransform.rect.height * Mathf.Abs(imageTransform.localScale.y);
+            width = Mathf.Min(width, height * image.sprite.rect.width / image.sprite.rect.height);
+        }
+
+        return width * 0.5f;
+    }
+
     // Slides the given characters together until none of them sticks out past the screen edges.
     private static void KeepOnScreen(params UwianCharacter[] group)
     {
@@ -317,7 +374,7 @@ public class A2_School_uwian_scr : MonoBehaviour
             if (parentTransform == null)
                 continue;
 
-            float halfImage = imageTransform.rect.width * Mathf.Abs(imageTransform.localScale.x) * 0.5f;
+            float halfImage = VisibleHalfWidth(character.image);
             float halfScreen = parentTransform.rect.width * 0.5f;
             overRight = Mathf.Max(overRight, character.spotPosition.x + halfImage - halfScreen);
             overLeft = Mathf.Max(overLeft, -halfScreen - (character.spotPosition.x - halfImage));
@@ -829,8 +886,12 @@ public class A2_School_uwian_scr : MonoBehaviour
         Vector2 startPosition = imageTransform.anchoredPosition;
         Vector2 exitPosition = startPosition + new Vector2(side * parentTransform.rect.width, 0f);
 
+        // Turns to face the edge they leave through, then goes.
+        Quaternion restRotation = imageTransform.localRotation;
+        yield return CharacterTurn.FaceExit(imageTransform, side);
         yield return MoveImage(imageTransform, startPosition, exitPosition, duration);
         character.image.gameObject.SetActive(false);
+        imageTransform.localRotation = restRotation;
     }
 
     // The friends ride the jeep home. Elijah stops once to look back before following.
@@ -1073,7 +1134,7 @@ public class A2_School_uwian_scr : MonoBehaviour
         {
             messageInputText.maxVisibleCharacters = i;
             CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
-            yield return new WaitForSeconds(speed);
+            yield return new WaitForSeconds(DialoguePacing.Delay(messageInputText, i, speed));
         }
 
         isTyping = false;

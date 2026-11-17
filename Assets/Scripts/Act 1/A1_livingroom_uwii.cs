@@ -556,7 +556,7 @@ public class A1_livingroom_uwii : MonoBehaviour
         {
             messageInputText.maxVisibleCharacters = i;
             CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
-            yield return new WaitForSeconds(typingSpeed);
+            yield return new WaitForSeconds(DialoguePacing.Delay(messageInputText, i, typingSpeed));
         }
 
         isTyping = false;

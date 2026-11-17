@@ -57,6 +57,10 @@ public static class PlayerDatabase
 
     private static PlayerSaveData data;
 
+    // Raised right after a choice is saved (StoryNotifications shows "Nanay will remember this." from it).
+    // A listener that throws can never break the scene that made the choice.
+    public static event Action<PlayerChoiceRecord> ChoiceRecorded;
+
     public static string SavePath => Path.Combine(Application.persistentDataPath, SaveFileName);
 
     public static PlayerSaveData Data
@@ -87,6 +91,7 @@ public static class PlayerDatabase
     private static void Initialize()
     {
         data = null;
+        ChoiceRecorded = null;
         SceneManager.sceneLoaded -= OnSceneLoaded;
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
@@ -154,7 +159,7 @@ public static class PlayerDatabase
     public static void RecordChoice(string choiceId, string question, string answerText, int points = 0, string answerId = null)
     {
         Data.choices.RemoveAll(choice => choice.choiceId == choiceId);
-        Data.choices.Add(new PlayerChoiceRecord
+        PlayerChoiceRecord record = new PlayerChoiceRecord
         {
             choiceId = choiceId,
             sceneName = SceneManager.GetActiveScene().name,
@@ -163,9 +168,19 @@ public static class PlayerDatabase
             answerText = answerText,
             points = points,
             recordedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
-        });
+        };
+        Data.choices.Add(record);
 
         Save();
+
+        try
+        {
+            ChoiceRecorded?.Invoke(record);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogException(exception);
+        }
     }
 
     // Records something the player did. Doing the same actionId again replaces the old record.
@@ -262,6 +277,12 @@ public static class PlayerDatabase
             summary.AppendLine($"{FormatPoints(entry.points)}  {entry.label}");
 
         return summary.ToString().TrimEnd();
+    }
+
+    // Is this scene part of that act? (Used by the "Previously..." recap at the start of an act.)
+    public static bool IsSceneFromAct(string sceneName, int actNumber)
+    {
+        return IsFromAct(sceneName, actNumber);
     }
 
     // Act 1 scenes are "Act One" and "A1_..."; Act 2 scenes are "A2_...", and so on.

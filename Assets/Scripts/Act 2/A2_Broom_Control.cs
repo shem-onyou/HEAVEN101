@@ -220,7 +220,7 @@ public class A2_Broom_Control : MonoBehaviour
             StartCoroutine(PlayLine(currentLineIndex));
     }
 
-    // "ACT 2" and the act's title appear in the middle of the black screen, then fade away.
+    // On the black screen: "Previously..." (what the player chose in Act 1), then "ACT 2" and the act's title.
     private IEnumerator ShowActTitle()
     {
         Transform canvasTransform = fadeScreenIn != null ? fadeScreenIn.transform.parent : null;
@@ -232,43 +232,9 @@ public class A2_Broom_Control : MonoBehaviour
         if (canvasTransform == null)
             yield break;
 
-        TMP_Text titleText = CreateCenterText(canvasTransform, "ActTitle", actTitle, actTitleFontSize, new Vector2(0.1f, 0.5f), new Vector2(0.9f, 0.7f));
-        TMP_Text subtitleText = CreateCenterText(canvasTransform, "ActSubtitle", actSubtitle, actSubtitleFontSize, new Vector2(0.1f, 0.35f), new Vector2(0.9f, 0.5f));
-
-        yield return FadeTextAlpha(titleText, 0f, 1f, 1f);
-        yield return new WaitForSeconds(0.4f);
-        yield return FadeTextAlpha(subtitleText, 0f, 1f, 1f);
-        yield return new WaitForSeconds(actTitleHoldDuration);
-
-        StartCoroutine(FadeTextAlpha(titleText, 1f, 0f, 1f));
-        yield return FadeTextAlpha(subtitleText, 1f, 0f, 1f);
-
-        Destroy(titleText.gameObject);
-        Destroy(subtitleText.gameObject);
-        yield return new WaitForSeconds(0.5f);
-    }
-
-    private TMP_Text CreateCenterText(Transform canvasTransform, string objectName, string message, float fontSize, Vector2 anchorMin, Vector2 anchorMax)
-    {
-        GameObject textObject = new GameObject(objectName, typeof(RectTransform), typeof(TextMeshProUGUI));
-        RectTransform textTransform = textObject.GetComponent<RectTransform>();
-        textTransform.SetParent(canvasTransform, false);
-        textTransform.anchorMin = anchorMin;
-        textTransform.anchorMax = anchorMax;
-        textTransform.offsetMin = Vector2.zero;
-        textTransform.offsetMax = Vector2.zero;
-        textTransform.SetAsLastSibling();
-
-        TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
-        if (messageInputText != null)
-            text.font = messageInputText.font;
-        text.fontSize = fontSize;
-        text.alignment = TextAlignmentOptions.Center;
-        text.color = Color.white;
-        text.alpha = 0f;
-        text.raycastTarget = false;
-        text.text = message;
-        return text;
+        yield return ChapterCard.Previously(canvasTransform, 1);
+        yield return ChapterCard.Title(canvasTransform, actTitle, actSubtitle, actTitleFontSize, actSubtitleFontSize, actTitleHoldDuration);
+        yield return new WaitForSeconds(0.2f);
     }
 
     // The FadeIn Animator is turned off so the screen stays black until the act title is done.
@@ -389,7 +355,7 @@ public class A2_Broom_Control : MonoBehaviour
         {
             messageInputText.maxVisibleCharacters = i;
             CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
-            yield return new WaitForSeconds(typingSpeed);
+            yield return new WaitForSeconds(DialoguePacing.Delay(messageInputText, i, typingSpeed));
         }
 
         isTyping = false;
@@ -474,20 +440,6 @@ public class A2_Broom_Control : MonoBehaviour
 
         color.a = toAlpha;
         image.color = color;
-    }
-
-    private static IEnumerator FadeTextAlpha(TMP_Text text, float fromAlpha, float toAlpha, float fadeDuration)
-    {
-        float duration = Mathf.Max(fadeDuration, 0.01f);
-        float elapsed = 0f;
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            text.alpha = Mathf.Lerp(fromAlpha, toAlpha, Mathf.Clamp01(elapsed / duration));
-            yield return null;
-        }
-
-        text.alpha = toAlpha;
     }
 
     // Starts the sound if needed and slides its volume; stops it when it reaches silence.

@@ -304,7 +304,7 @@ public class A2_Croom_control : MonoBehaviour
         if (passLines.Count == 0)
         {
             passLines.Add(new A2CroomDialogueLine("You", "I got {score} out of {total}!", A2CroomAction.ShowScore));
-            passLines.Add(new A2CroomDialogueLine(classmate2Name, "Wow! Congrats! Pasado ka!"));
+            passLines.Add(new A2CroomDialogueLine(classmate2Name, "Wow! Congrats! <link=\"wave\">Pasado ka!</link>"));
             passLines.Add(new A2CroomDialogueLine(classmate1Name, "Ang galing! Libre mo naman kami mamaya, hehe!"));
             passLines.Add(new A2CroomDialogueLine("You", "Hehe, thanks! (Phew... I passed.)"));
         }
@@ -1160,7 +1160,7 @@ public class A2_Croom_control : MonoBehaviour
         {
             messageInputText.maxVisibleCharacters = i;
             CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
-            yield return new WaitForSeconds(typingSpeed);
+            yield return new WaitForSeconds(DialoguePacing.Delay(messageInputText, i, typingSpeed));
         }
 
         isTyping = false;

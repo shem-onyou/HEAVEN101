@@ -131,7 +131,7 @@ public class A1_classrm : MonoBehaviour
             dialogueList.Add(new A1ClassroomDialogueLine(classmate2Name, "Hay nako, finally! I thought Ma'am's discussion would never end.", A1ClassroomAction.TimeSkip));
             dialogueList.Add(new A1ClassroomDialogueLine("You", "Same... my brain is fried."));
             dialogueList.Add(new A1ClassroomDialogueLine(classmate1Name, "Wait, what did she even teach today?"));
-            dialogueList.Add(new A1ClassroomDialogueLine(classmate2Name, "HOY! You were sleeping the whole time, weren't you?!"));
+            dialogueList.Add(new A1ClassroomDialogueLine(classmate2Name, "<link=\"shake\">HOY!</link> You were sleeping the whole time, weren't you?!"));
             dialogueList.Add(new A1ClassroomDialogueLine(classmate1Name, "I was just resting my eyes. Iba 'yon!"));
             dialogueList.Add(new A1ClassroomDialogueLine("You", "She said there's a quiz tomorrow on everything she discussed."));
             dialogueList.Add(new A1ClassroomDialogueLine(classmate1Name, "Ha?! Seryoso? Uy... can I copy your notes later?"));
@@ -614,8 +614,12 @@ public class A1_classrm : MonoBehaviour
         Vector2 startPosition = imageTransform.anchoredPosition;
         Vector2 exitPosition = startPosition + new Vector2(parentTransform.rect.width, 0f);
 
+        // Turns to face the right edge first, then runs off.
+        Quaternion restRotation = imageTransform.localRotation;
+        yield return CharacterTurn.FaceExit(imageTransform, 1f);
         yield return MoveImage(imageTransform, startPosition, exitPosition, walkInDuration);
         classmateImage.gameObject.SetActive(false);
+        imageTransform.localRotation = restRotation;
     }
 
     // side: -1 enters from the left edge, 1 enters from the right edge
@@ -820,7 +824,7 @@ public class A1_classrm : MonoBehaviour
         {
             messageInputText.maxVisibleCharacters = i;
             CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
-            yield return new WaitForSeconds(typingSpeed);
+            yield return new WaitForSeconds(DialoguePacing.Delay(messageInputText, i, typingSpeed));
         }
 
         isTyping = false;

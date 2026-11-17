@@ -535,9 +535,15 @@ public abstract class A3SceneBase : MonoBehaviour
         RectTransform parentTransform = imageTransform.parent as RectTransform;
         float distance = parentTransform != null ? parentTransform.rect.width : 1500f;
 
+        // Turns to face the edge they leave through, then walks off; facing is put back once off screen.
+        float side = SideOf(character);
+        Quaternion restRotation = imageTransform.localRotation;
+        yield return CharacterTurn.FaceExit(imageTransform, side);
+
         Vector2 startPosition = imageTransform.anchoredPosition;
-        yield return MoveImage(imageTransform, startPosition, startPosition + new Vector2(SideOf(character) * distance, 0f), duration);
+        yield return MoveImage(imageTransform, startPosition, startPosition + new Vector2(side * distance, 0f), duration);
         character.image.gameObject.SetActive(false);
+        imageTransform.localRotation = restRotation;
     }
 
     protected IEnumerator MoveImage(RectTransform imageTransform, Vector2 startPosition, Vector2 targetPosition, float moveDuration)
@@ -778,7 +784,7 @@ public abstract class A3SceneBase : MonoBehaviour
         {
             messageInputText.maxVisibleCharacters = i;
             CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
-            yield return new WaitForSeconds(speed);
+            yield return new WaitForSeconds(DialoguePacing.Delay(messageInputText, i, speed));
         }
 
         isTyping = false;
@@ -1274,21 +1280,16 @@ public abstract class A3SceneBase : MonoBehaviour
         Destroy(text.gameObject);
     }
 
-    // "ACT 3" and the act's title on the black screen.
+    // "ACT 3" and the act's title on the black screen (the same title card as Acts 1 and 2).
     protected IEnumerator ShowTitleCard(string title, string subtitle)
     {
-        TMP_Text titleText = CreateText("ActTitle", title, 72f, new Vector2(0.1f, 0.5f), new Vector2(0.9f, 0.7f));
-        TMP_Text subtitleText = CreateText("ActSubtitle", subtitle, 40f, new Vector2(0.1f, 0.35f), new Vector2(0.9f, 0.5f));
-        if (titleText == null)
-            yield break;
+        yield return ChapterCard.Title(canvasTransform, title, subtitle, 72f, 40f, 2f);
+    }
 
-        yield return FadeTextAlpha(titleText, 0f, 1f, 1f);
-        yield return FadeTextAlpha(subtitleText, 0f, 1f, 1f);
-        yield return new WaitForSeconds(2f);
-        StartCoroutine(FadeTextAlpha(titleText, 1f, 0f, 1f));
-        yield return FadeTextAlpha(subtitleText, 1f, 0f, 1f);
-        Destroy(titleText.gameObject);
-        Destroy(subtitleText.gameObject);
+    // "Previously..." on the black screen: what the player chose in that act.
+    protected IEnumerator ShowPreviously(int previousAct)
+    {
+        yield return ChapterCard.Previously(canvasTransform, previousAct);
     }
 
     // ------------------------------------------------------------------ Good Deeds counter

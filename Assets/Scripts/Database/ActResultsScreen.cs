@@ -6,8 +6,13 @@ using TMPro;
 
 // Shows the player's record (choices, actions, good points) on top of the black fade-out screen,
 // with a "Main Menu" and a "Next Act" button. Call Show() at the end of an act.
+// The recap sits on a dark pixel panel and appears one line at a time with a soft tick (higher for good
+// points, lower for bad ones); the buttons pop in when it is done. A tap shows everything at once.
 public static class ActResultsScreen
 {
+    private static readonly Color PanelBorder = new Color(1f, 0.82f, 0.45f, 0.9f);
+    private static readonly Color PanelFill = new Color(0.05f, 0.06f, 0.11f, 0.92f);
+
     public static void Show(Transform canvasTransform, GameObject choiceContainer, TMP_FontAsset font,
         string title, string mainMenuSceneName, string nextActSceneName)
     {
@@ -15,21 +20,58 @@ public static class ActResultsScreen
         if (canvasRect == null)
             return;
 
-        CreateSummaryText(canvasRect, font, title);
+        // The act is over: nothing left to pause.
+        PauseMenu.DisableForEnding();
+
+        CanvasGroup panel = CreatePanel(canvasRect);
+        TextMeshProUGUI summary = CreateSummaryText(canvasRect, font, title);
 
         Button mainMenuButton;
         Button nextActButton;
-        if (!TryUseChoiceButtons(canvasRect, choiceContainer, out mainMenuButton, out nextActButton))
+        GameObject[] buttonObjects;
+        if (TryUseChoiceButtons(canvasRect, choiceContainer, out mainMenuButton, out nextActButton))
+        {
+            buttonObjects = new[] { choiceContainer };
+        }
+        else
+        {
             CreateButtons(canvasRect, font, out mainMenuButton, out nextActButton);
+            buttonObjects = new[] { mainMenuButton.gameObject, nextActButton.gameObject };
+        }
 
         SetupButton(mainMenuButton, "Main Menu", () => SceneManager.LoadScene(mainMenuSceneName));
 
         // Until the next act exists, "Next Act" goes back to the Acts selection screen.
         string nextActTarget = string.IsNullOrEmpty(nextActSceneName) ? "Acts" : nextActSceneName;
         SetupButton(nextActButton, "Next Act", () => SceneManager.LoadScene(nextActTarget));
+
+        // The buttons wait for the recap (ResultsReveal shows them, after at most a few seconds).
+        foreach (GameObject buttonObject in buttonObjects)
+            buttonObject.SetActive(false);
+
+        ResultsReveal reveal = summary.gameObject.AddComponent<ResultsReveal>();
+        reveal.Begin(summary, panel, buttonObjects);
     }
 
-    private static void CreateSummaryText(RectTransform canvasRect, TMP_FontAsset font, string title)
+    // The dark pixel panel behind the recap, with the gold edge of the story notifications.
+    private static CanvasGroup CreatePanel(RectTransform canvasRect)
+    {
+        Image panel = PolishUI.CreateImage("ActResultsPanel", canvasRect, PixelUI.RoundedSprite(PanelBorder, PanelFill, 3f), Color.white);
+        panel.type = Image.Type.Sliced;
+        RectTransform panelRect = panel.rectTransform;
+        panelRect.anchorMin = new Vector2(0.055f, 0.27f);
+        panelRect.anchorMax = new Vector2(0.945f, 0.975f);
+        panelRect.offsetMin = Vector2.zero;
+        panelRect.offsetMax = Vector2.zero;
+        panelRect.SetAsLastSibling();
+
+        CanvasGroup group = panel.gameObject.AddComponent<CanvasGroup>();
+        group.alpha = 0f;
+        group.blocksRaycasts = false;
+        return group;
+    }
+
+    private static TextMeshProUGUI CreateSummaryText(RectTransform canvasRect, TMP_FontAsset font, string title)
     {
         GameObject textObject = new GameObject("ActResultsText", typeof(RectTransform), typeof(TextMeshProUGUI));
         RectTransform textTransform = textObject.GetComponent<RectTransform>();
@@ -55,6 +97,7 @@ public static class ActResultsScreen
         int actNumber = CurrentActNumber();
         string summary = actNumber > 0 ? PlayerDatabase.BuildActSummary(actNumber) : PlayerDatabase.BuildSummary();
         text.text = $"<size=140%><b>{title}</b></size>\n\n{summary}";
+        return text;
     }
 
     // Reads the act from the scene name: "A1_BR_lastscene" is Act 1, "A2_Broom_uwi" is Act 2.

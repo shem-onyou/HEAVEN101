@@ -121,7 +121,7 @@ public class A1_school : MonoBehaviour
         {
             dialogueList.Add(new A1SchoolDialogueLine("You", "I'm so late! Ma'am will be mad!"));
             dialogueList.Add(new A1SchoolDialogueLine(classmate1Name, "...", A1SchoolAction.ElijahEnters));
-            dialogueList.Add(new A1SchoolDialogueLine("You", "HUY! You're late too?!"));
+            dialogueList.Add(new A1SchoolDialogueLine("You", "<link=\"shake\">HUY!</link> You're late too?!"));
             dialogueList.Add(new A1SchoolDialogueLine(classmate1Name, "Yeah, but it's fine. We don't have to rush."));
             dialogueList.Add(new A1SchoolDialogueLine("You", "But Ma'am will be mad if we're late!"));
             dialogueList.Add(new A1SchoolDialogueLine(classmate1Name, "Hmm... Let's just cut the first subject!"));
@@ -500,8 +500,12 @@ public class A1_school : MonoBehaviour
         Vector2 startPosition = imageTransform.anchoredPosition;
         Vector2 exitPosition = startPosition + new Vector2(parentTransform.rect.width, 0f);
 
+        // Turns to face the right edge first, then runs off.
+        Quaternion restRotation = imageTransform.localRotation;
+        yield return CharacterTurn.FaceExit(imageTransform, 1f);
         yield return MoveImage(imageTransform, startPosition, exitPosition, duration);
         character.image.gameObject.SetActive(false);
+        imageTransform.localRotation = restRotation;
     }
 
     private static IEnumerator MoveImage(RectTransform imageTransform, Vector2 startPosition, Vector2 targetPosition, float moveDuration)
@@ -643,7 +647,7 @@ public class A1_school : MonoBehaviour
         {
             messageInputText.maxVisibleCharacters = i;
             CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
-            yield return new WaitForSeconds(typingSpeed);
+            yield return new WaitForSeconds(DialoguePacing.Delay(messageInputText, i, typingSpeed));
         }
 
         isTyping = false;

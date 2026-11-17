@@ -41,7 +41,22 @@ public class PauseMenu : MonoBehaviour
     [Tooltip("On: no panel picture behind the buttons, only the dimmed game. Off: show the panel's sprite.")]
     [SerializeField] private bool hidePanelPicture = true;
 
+    [Header("Size (the Paused title and the Continue/Menu buttons grow together, spacing included)")]
+    [Tooltip("On phones (and the Device Simulator): small screens need bigger buttons to tap.")]
+    [SerializeField] private float phoneMenuScale = 2.2f;
+    [Tooltip("On PC and in the Editor's Game view.")]
+    [SerializeField] private float desktopMenuScale = 1.5f;
+    [Tooltip("The small pause button in the corner, on phones only.")]
+    [SerializeField] private float phonePauseButtonScale = 1.3f;
+
     public static bool IsPaused { get; private set; }
+
+    // The frame the game was last resumed, so the tap on "Continue" isn't also read as a tap on the game
+    // (the act title cards can be skipped with a tap).
+    public static int LastResumeFrame { get; private set; } = -1;
+
+    // The act is over (results screen or ending): no pause button, and Back/Escape don't pause.
+    private bool disabled;
 
     private GameObject dimLayer;
     private int lastActionFrame = -1;
@@ -101,6 +116,24 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
+    // Called when an act is finished (ActResultsScreen) and at the game's ending: there is nothing left to pause,
+    // so the pause button disappears and Back/Escape no longer open the menu. The next scene gets its own
+    // pause menu again.
+    public static void DisableForEnding()
+    {
+        foreach (PauseMenu menu in FindObjectsByType<PauseMenu>(FindObjectsInactive.Include))
+            menu.Disable();
+    }
+
+    private void Disable()
+    {
+        disabled = true;
+
+        // If the menu happens to be open, it stays usable (Continue/Menu); only opening it again is blocked.
+        if (pauseButton != null && (pausePanel == null || !pausePanel.activeSelf))
+            pauseButton.gameObject.SetActive(false);
+    }
+
     // The scene's main Canvas (the one named "Canvas", or else the first screen canvas).
     private static Transform FindSceneCanvas(Scene scene)
     {
@@ -133,6 +166,7 @@ public class PauseMenu : MonoBehaviour
     {
         FindParts();
         BringToFront();
+        ApplySize();
 
         if (pausePanel != null)
         {
@@ -149,6 +183,10 @@ public class PauseMenu : MonoBehaviour
         Bind(pauseButton, OpenPause, "pause button");
         Bind(continueButton, ClosePause, "Continue button");
         Bind(menuButton, GoToMainMenu, "Menu button");
+
+        // Disabled before it even started (the act ended right away).
+        if (disabled && pauseButton != null)
+            pauseButton.gameObject.SetActive(false);
 
         // The click is played inside OpenPause / ClosePause / GoToMainMenu (not added to the buttons),
         // because the backup check in Update calls them directly too.
@@ -239,6 +277,20 @@ public class PauseMenu : MonoBehaviour
         // Animations inside the pause menu keep playing while the game is paused.
         foreach (Animator animator in GetComponentsInChildren<Animator>(true))
             animator.updateMode = AnimatorUpdateMode.UnscaledTime;
+    }
+
+    // Makes the pause menu bigger: the whole panel (title, Continue, Menu and the space between them) grows
+    // around its middle, so the layout stays the same, just larger. Phones get more, and a bigger pause button.
+    // Done once, before the pop animation reads the panel's scale.
+    private void ApplySize()
+    {
+        bool phone = Application.isMobilePlatform;
+
+        if (pausePanel != null)
+            pausePanel.transform.localScale *= Mathf.Max(phone ? phoneMenuScale : desktopMenuScale, 0.1f);
+
+        if (phone && pauseButton != null)
+            pauseButton.transform.localScale *= Mathf.Max(phonePauseButtonScale, 0.1f);
     }
 
     // The "Paused" title (any text in the panel that is not a button label) becomes white
@@ -403,7 +455,7 @@ public class PauseMenu : MonoBehaviour
     public void OpenPause()
     {
         // The button and the backup check can both fire on the same tap; only act once per frame.
-        if (pausePanel == null || pausePanel.activeSelf || lastActionFrame == Time.frameCount)
+        if (disabled || pausePanel == null || pausePanel.activeSelf || lastActionFrame == Time.frameCount)
             return;
 
         lastActionFrame = Time.frameCount;
@@ -430,7 +482,7 @@ public class PauseMenu : MonoBehaviour
         ButtonClickSound.Play();
         if (pausePanel != null) pausePanel.SetActive(false);
         if (dimLayer != null) dimLayer.SetActive(false);
-        if (pauseButton != null) pauseButton.gameObject.SetActive(true);
+        if (pauseButton != null) pauseButton.gameObject.SetActive(!disabled);
         Resume();
     }
 
@@ -448,6 +500,9 @@ public class PauseMenu : MonoBehaviour
 
     private static void Resume()
     {
+        if (IsPaused)
+            LastResumeFrame = Time.frameCount;
+
         Time.timeScale = 1f;
         AudioListener.pause = false;
         IsPaused = false;

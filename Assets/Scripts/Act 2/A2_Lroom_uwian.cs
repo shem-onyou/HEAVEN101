@@ -204,7 +204,7 @@ public class A2_Lroom_uwian : MonoBehaviour
             lateHomeLines.Add(new A2LroomUwiDialogueLine(playerName, "N-Nanay... I'm home."));
             lateHomeLines.Add(new A2LroomUwiDialogueLine(nanayName, "ANAK! Saan ka ba galing?!", A2LroomUwiAction.NanayRushesIn));
             lateHomeLines.Add(new A2LroomUwiDialogueLine(nanayName, "It's already dark! I called you so many times! Hindi ka man lang nag-text!"));
-            lateHomeLines.Add(new A2LroomUwiDialogueLine(nanayName, "Your classmates got home hours ago! What happened?!"));
+            lateHomeLines.Add(new A2LroomUwiDialogueLine(nanayName, "Your classmates got home hours ago! <link=\"shake\">What happened?!</link>"));
             lateHomeLines.Add(new A2LroomUwiDialogueLine(playerName, "(If I tell her I walked home alone... she'll be even more upset.)"));
         }
 
@@ -793,8 +793,13 @@ public class A2_Lroom_uwian : MonoBehaviour
             float distance = parentTransform != null ? parentTransform.rect.width : 1500f;
 
             Vector2 startPosition = nanayTransform.anchoredPosition;
+
+            // She turns to face the way out first.
+            Quaternion restRotation = nanayTransform.localRotation;
+            yield return CharacterTurn.FaceExit(nanayTransform, side);
             yield return MoveImage(nanayTransform, startPosition, startPosition + new Vector2(side * distance, 0f), nanayWalkDuration);
             nanayImage.gameObject.SetActive(false);
+            nanayTransform.localRotation = restRotation;
         }
 
         PlayEffect(doorAudioSource);
@@ -1053,7 +1058,7 @@ public class A2_Lroom_uwian : MonoBehaviour
         {
             messageInputText.maxVisibleCharacters = i;
             CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
-            yield return new WaitForSeconds(speed);
+            yield return new WaitForSeconds(DialoguePacing.Delay(messageInputText, i, speed));
         }
 
         isTyping = false;

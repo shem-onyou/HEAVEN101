@@ -619,8 +619,12 @@ public class A2_School_control : MonoBehaviour
         Vector2 startPosition = imageTransform.anchoredPosition;
         Vector2 exitPosition = startPosition + new Vector2(parentTransform.rect.width, 0f);
 
+        // Turns to face the right edge first, then runs off.
+        Quaternion restRotation = imageTransform.localRotation;
+        yield return CharacterTurn.FaceExit(imageTransform, 1f);
         yield return MoveImage(imageTransform, startPosition, exitPosition, duration);
         character.image.gameObject.SetActive(false);
+        imageTransform.localRotation = restRotation;
     }
 
     private static IEnumerator MoveImage(RectTransform imageTransform, Vector2 startPosition, Vector2 targetPosition, float moveDuration)
@@ -774,7 +778,7 @@ public class A2_School_control : MonoBehaviour
         {
             messageInputText.maxVisibleCharacters = i;
             CharacterVoice.Speak(charNameText != null ? charNameText.text : null, messageInputText, i);
-            yield return new WaitForSeconds(typingSpeed);
+            yield return new WaitForSeconds(DialoguePacing.Delay(messageInputText, i, typingSpeed));
         }
 
         isTyping = false;

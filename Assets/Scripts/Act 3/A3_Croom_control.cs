@@ -52,7 +52,7 @@ public class A3_Croom_control : A3SceneBase
             newsLines.Add(new A3Line(teacherName, "Your Nanay collapsed at home.", "heartbeat;shake:14"));
             newsLines.Add(new A3Line(playerName, "...What?"));
             newsLines.Add(new A3Line(playerName, "N-Nanay...?"));
-            newsLines.Add(new A3Line(classmate2Name, "Go! Run! We'll tell the other teachers!"));
+            newsLines.Add(new A3Line(classmate2Name, "<link=\"shake\">Go! Run!</link> We'll tell the other teachers!"));
             newsLines.Add(new A3Line(classmate1Name, "Pre, go! Text us when you get there!"));
         }
     }

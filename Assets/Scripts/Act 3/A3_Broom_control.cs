@@ -55,6 +55,10 @@ public class A3_Broom_control : A3SceneBase
 
     protected override IEnumerator RunScene()
     {
+        // What the player chose in Act 2, before the night's question comes back.
+        yield return new WaitForSeconds(0.6f);
+        yield return ShowPreviously(2);
+
         // The question from Act 2 echoes in the dark with a heartbeat.
         StartLoop(heartbeatSound, 0.7f, 1f);
         yield return new WaitForSeconds(1f);

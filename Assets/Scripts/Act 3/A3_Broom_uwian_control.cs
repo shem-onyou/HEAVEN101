@@ -162,7 +162,7 @@ public class A3_Broom_uwian_control : A3SceneBase
         if (didYouLines.Count == 0)
         {
             didYouLines.Add(new A3Line(playerName, "I helped her. I helped my friends. I helped everyone I could!"));
-            didYouLines.Add(new A3Line(playerName, "I did everything right!"));
+            didYouLines.Add(new A3Line(playerName, "<link=\"shake\">I did everything right!</link>"));
             didYouLines.Add(new A3Line(lordName, "...", "pause:1"));
             didYouLines.Add(new A3Line(lordName, "Did you, child?"));
             didYouLines.Add(new A3Line(playerName, "...What?"));
@@ -199,7 +199,7 @@ public class A3_Broom_uwian_control : A3SceneBase
         {
             wakeLines.Add(new A3Line(lordName, "Wake up, child."));
             wakeLines.Add(new A3Line(lordName, "And this time..."));
-            wakeLines.Add(new A3Line(lordName, "...rest."));
+            wakeLines.Add(new A3Line(lordName, "<link=\"wave\">...rest.</link>"));
         }
 
         if (morningLines.Count == 0)
@@ -552,6 +552,8 @@ public class A3_Broom_uwian_control : A3SceneBase
     private IEnumerator Ending()
     {
         isEnding = true;
+        // The story is over (verse, credits, the crossed-out deeds): no pause button from here on.
+        PauseMenu.DisableForEnding();
         HideDialogueBox();
         if (nextButton != null) nextButton.SetActive(false);
         StopAllSounds(2.5f);

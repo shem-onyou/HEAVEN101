@@ -42,7 +42,7 @@ public class MainMenu : MonoBehaviour
     [Header("Music (auto-found by object or clip name if empty)")]
     [Tooltip("Plays once when the Main Menu opens. Found by \"opening\" (e.g. OpeningMainmenu).")]
     public AudioSource openingAudioSource;
-    [Tooltip("Played one after the other, over and over, through the Main Menu and the Acts screen. " +
+    [Tooltip("Played one after the other, over and over, while the Main Menu is open (the Acts screen is silent). " +
              "Found by \"angelic\" (e.g. angelicvoice1, angelicvoice2), in name order.")]
     public List<AudioSource> angelicAudioSources = new List<AudioSource>();
     [Tooltip("On: the angelic voices fade in as the opening sound fades out. Off: they start together with it.")]
@@ -58,7 +58,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private float voiceLength = 10f;
     [Tooltip("Seconds where one voice fades out while the next fades in, so there is never a gap or a hard cut.")]
     [SerializeField] private float crossfadeDuration = 2.5f;
-    [Tooltip("The music keeps playing on the Acts screen and fades out over this many seconds when an act starts.")]
+    [Tooltip("How long the music takes to fade out when the player leaves the Main Menu (to the Acts screen or an act).")]
     [SerializeField] private float leaveFadeDuration = 1.5f;
 
     [Header("Scenes")]
@@ -177,12 +177,18 @@ public class MainMenu : MonoBehaviour
         return (audioSource.gameObject.name + " " + clipName).ToLowerInvariant();
     }
 
-    // Hands the music to the MenuMusicPlayer, which keeps playing across Main Menu and Acts and
-    // fades out when an act starts. Coming back from Acts, the music is already playing: nothing restarts.
+    // Hands the music to the MenuMusicPlayer. It plays on the Main Menu only: it fades out when the player goes
+    // to the Acts screen (or into an act), and starts again here when they come back (without the opening sound,
+    // which plays once per launch).
     private void StartMenuMusic()
     {
         if (MenuMusicPlayer.Instance != null)
-            return;
+        {
+            // Still playing (nothing to do), or still fading out from leaving a moment ago: replace it.
+            if (!MenuMusicPlayer.Instance.IsLeaving)
+                return;
+            MenuMusicPlayer.Instance.StopNow();
+        }
 
         List<AudioSource> voices = angelicAudioSources.FindAll(voice => voice != null && voice.clip != null);
         bool hasOpening = openingAudioSource != null && openingAudioSource.clip != null;
@@ -190,7 +196,8 @@ public class MainMenu : MonoBehaviour
             return;
 
         MenuMusicPlayer music = MenuMusicPlayer.Create();
-        music.menuSceneNames = new[] { gameObject.scene.name, string.IsNullOrEmpty(actsSceneName) ? "Acts" : actsSceneName };
+        // Only this scene: the Acts screen is silent.
+        music.menuSceneNames = new[] { gameObject.scene.name };
         music.waitForOpeningToFinish = waitForOpeningToFinish;
         music.openingFadeStartTime = openingFadeStartTime;
         music.openingFadeOutDuration = openingFadeOutDuration;

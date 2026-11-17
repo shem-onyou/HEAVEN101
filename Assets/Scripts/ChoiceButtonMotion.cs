@@ -6,7 +6,9 @@ using UnityEngine.UI;
 // The little motions of a dialogue choice button (added by ChoiceButtonStyle): a quick pop with a tiny overshoot
 // when the choices appear, one button slightly after the other, and a small grow while the mouse is over it
 // or a finger is on it. Only the scale and see-through amount change; the button's place and size are not touched.
-public class ChoiceButtonMotion : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+// When it is picked, a copy of it lifts and fades away (ChoiceSelectFlash), even though the scene hides the
+// real buttons right away.
+public class ChoiceButtonMotion : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerClickHandler
 {
     private const float PopDuration = 0.18f;
     private const float PopDelayPerButton = 0.07f;
@@ -59,6 +61,24 @@ public class ChoiceButtonMotion : MonoBehaviour, IPointerEnterHandler, IPointerE
     public void OnPointerExit(PointerEventData eventData)
     {
         hovered = false;
+    }
+
+    // Remembered on press: by the time the click arrives, the scene may already have hidden or locked the button.
+    private bool pressedWhileUsable;
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        pressedWhileUsable = button != null && button.IsInteractable();
+    }
+
+    // The Button's own click (the scene's choice) runs first; this only adds the picked effect.
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left || !pressedWhileUsable)
+            return;
+
+        pressedWhileUsable = false;
+        ChoiceSelectFlash.Spawn(transform as RectTransform);
     }
 
     private IEnumerator Pop()

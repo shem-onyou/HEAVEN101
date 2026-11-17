@@ -78,6 +78,11 @@ public class SceneController : MonoBehaviour
     [Header("Typewriter Speed Settings")]
     [SerializeField] private float typingSpeed = 0.03f;
 
+    [Header("Act Title (shown on the black screen before the intro)")]
+    [SerializeField] private string actTitle = "ACT 1";
+    [SerializeField] private string actSubtitle = "The Question";
+    [SerializeField] private float actTitleHoldDuration = 1.8f;
+
     [Header("Intro (text on the black screen before the scene)")]
     [TextArea(1, 3)]
     public List<string> introLines = new List<string>
@@ -159,7 +164,7 @@ public class SceneController : MonoBehaviour
             dialogueList.Add(new DialogueLine("You", "I try to be a good person. I help people, I go to school, I listen to Nanay... Isn't that enough?")); // 13
             dialogueList.Add(new DialogueLine(lordName, "Is it? Many have stood where you stand now, holding that very same answer.")); // 14
             dialogueList.Add(new DialogueLine(lordName, "Judgment is near. Search your heart before that day comes. When it does, no more time will be given.")); // 15
-            dialogueList.Add(new DialogueLine(lordName, "WAKE UP! And live your remaining days wisely.", action: A1ActOneAction.WakeUpShake, endsScene: true)); // 16
+            dialogueList.Add(new DialogueLine(lordName, "<link=\"shake\">WAKE UP!</link> And live your remaining days wisely.", action: A1ActOneAction.WakeUpShake, endsScene: true)); // 16
 
             // Path B: If Player chooses "Because I've been good."
             dialogueList.Add(new DialogueLine("You", "Because I've been good! I obey my parents, I help my friends, I never hurt anyone. My good deeds should be enough to save me.")); // 17
@@ -167,7 +172,7 @@ public class SceneController : MonoBehaviour
             dialogueList.Add(new DialogueLine("You", "Isn't it? I've done more good than bad. That has to count for something.")); // 19
             dialogueList.Add(new DialogueLine(lordName, "Then I will give you time, child. Look closely at the life you live, and you will find your answer.")); // 20
             dialogueList.Add(new DialogueLine(lordName, "What you call a dream is a warning. The Day of Judgment is coming, and every choice you make will matter.")); // 21
-            dialogueList.Add(new DialogueLine(lordName, "WAKE UP! Seek the answer.", action: A1ActOneAction.WakeUpShake, endsScene: true)); // 22
+            dialogueList.Add(new DialogueLine(lordName, "<link=\"shake\">WAKE UP!</link> Seek the answer.", action: A1ActOneAction.WakeUpShake, endsScene: true)); // 22
         }
 
         FindSceneReferences();
@@ -333,6 +338,7 @@ public class SceneController : MonoBehaviour
 
     IEnumerator StartCutscene()
     {
+        yield return ShowActTitle();
         yield return PlayIntro();
         yield return FadeFromBlack();
 
@@ -361,6 +367,20 @@ public class SceneController : MonoBehaviour
         Image fadeImage = fadeScreenIn.GetComponent<Image>();
         if (fadeImage != null)
             fadeImage.color = Color.black;
+    }
+
+    // "ACT 1" and the act's name on the black screen (the same title card as Acts 2 and 3).
+    private IEnumerator ShowActTitle()
+    {
+        if (string.IsNullOrEmpty(actTitle))
+            yield break;
+
+        Transform canvasTransform = fadeScreenIn != null ? fadeScreenIn.transform.parent : null;
+        if (canvasTransform == null && dialogueBox != null)
+            canvasTransform = dialogueBox.transform.parent;
+
+        yield return new WaitForSeconds(0.8f);
+        yield return ChapterCard.Title(canvasTransform, actTitle, actSubtitle, 72f, 36f, actTitleHoldDuration);
     }
 
     // Shows each intro line in the middle of the black screen, one after another.
@@ -676,7 +696,7 @@ public class SceneController : MonoBehaviour
         for (int i = 0; i <= totalCharacters; i++)
         {
             messageInputText.maxVisibleCharacters = i;
-            yield return new WaitForSeconds(typingSpeed);
+            yield return new WaitForSeconds(DialoguePacing.Delay(messageInputText, i, typingSpeed));
         }
 
         OnTypingFinished();
