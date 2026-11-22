@@ -70,6 +70,8 @@ public class A1_bedroom_control : MonoBehaviour
     [TextArea(1, 3)]
     [SerializeField] private string flashbackEcho = "\"Tell me, child... Why should I open the gates to you?\"";
     [SerializeField] private float flashbackHoldDuration = 2.5f;
+    [Tooltip("How dark the room gets behind the vision (0 = not at all, 1 = black).")]
+    [Range(0f, 1f)] [SerializeField] private float flashbackDarkness = 0.75f;
 
     [Header("Panic")]
     [SerializeField] private float panicShakeStrength = 12f;
@@ -457,21 +459,47 @@ public class A1_bedroom_control : MonoBehaviour
         if (birdsAudioSource != null) StartCoroutine(FadeAudio(birdsAudioSource, birdsStartVolume, birdsStartVolume * 0.2f, 0.4f));
         if (heartbeatAudioSource != null) StartCoroutine(FadeAudio(heartbeatAudioSource, 0f, heartbeatVolume, 0.4f));
 
+        // A dark layer first, so the vision stands out and the words can be read.
+        Image backdrop = CreateFullScreenImage(canvasTransform, "FlashbackBackdrop");
+        backdrop.color = new Color(0f, 0f, 0f, 0f);
+
         Image flashImage = CreateFullScreenImage(canvasTransform, "FlashbackImage");
         if (flashbackSprite != null)
+        {
             flashImage.sprite = flashbackSprite;
+
+            // Keep the picture's real shape (no stretching). A tall picture (like God) stands in the
+            // upper part of the screen, leaving the bottom free for the words.
+            flashImage.preserveAspect = true;
+            Rect spriteRect = flashbackSprite.rect;
+            bool isTallPicture = spriteRect.width / Mathf.Max(spriteRect.height, 1f) < 1.4f;
+            if (isTallPicture)
+            {
+                RectTransform imageTransform = flashImage.rectTransform;
+                imageTransform.anchorMin = new Vector2(0.2f, 0.24f);
+                imageTransform.anchorMax = new Vector2(0.8f, 0.97f);
+            }
+        }
         flashImage.color = new Color(1f, 1f, 1f, 0f);
 
         TMP_Text echoText = CreateCenterText(canvasTransform, "FlashbackEcho", flashbackEcho);
+        // The words sit on the dark band at the bottom, away from the bright light.
+        echoText.rectTransform.anchorMin = new Vector2(0.06f, 0.03f);
+        echoText.rectTransform.anchorMax = new Vector2(0.94f, 0.23f);
+        echoText.fontSize = 28f;
+        echoText.color = new Color(1f, 0.93f, 0.7f, 0f);
 
+        StartCoroutine(FadeImageAlpha(backdrop, 0f, flashbackDarkness, 0.4f));
         yield return FadeImageAlpha(flashImage, 0f, 1f, 0.4f);
         yield return FadeTextAlpha(echoText, 0f, 1f, 0.8f);
         yield return new WaitForSeconds(flashbackHoldDuration);
         yield return FadeTextAlpha(echoText, 1f, 0f, 0.8f);
+        StartCoroutine(FadeImageAlpha(backdrop, flashbackDarkness, 0f, 0.8f));
         yield return FadeImageAlpha(flashImage, 1f, 0f, 0.8f);
 
         Destroy(echoText.gameObject);
         Destroy(flashImage.gameObject);
+        Destroy(backdrop.gameObject);
 
         if (fanAudioSource != null) StartCoroutine(FadeAudio(fanAudioSource, fanAudioSource.volume, fanVolume, 0.8f));
         if (birdsAudioSource != null) StartCoroutine(FadeAudio(birdsAudioSource, birdsAudioSource.volume, birdsStartVolume, 0.8f));
